@@ -1,0 +1,9 @@
+hikari-lightbulb>=2.0.0.a7
+git+https://github.com/FasterSpeeding/Sake@task/raw-dispatch
+git+https://github.com/FasterSpeeding/Yuyo
+pydantic>=1.8.2
+tortoise-orm==0.17.4
+aerich==0.5.3
+asyncpg>=0.24.0
+uvloop>=0.16.0
+python-dotenv>=0.19.1

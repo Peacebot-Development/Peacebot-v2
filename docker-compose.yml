@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+    db:
+      image: postgres:13
+      restart: always
+      expose:
+        - 5432
+      environment:
+        POSTGRES_USER: peacebot
+        POSTGRES_PASSWORD: test123
+        POSTGRES_DB: peacebot_db
+      volumes:
+        - postgres_db:/var/lib/postgresql/data
+      env_file: .env
+
+    bot:
+        build: .
+        env_file: .env
+        depends_on:
+            - db
+            - redis
+        links: 
+            - db:postgres
+            - redis:redis
+    redis:
+          image: redis:alpine
+          restart: always
+          expose:
+            - 6379  
+volumes:
+    postgres_db:
