@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import asyncio
 import logging
 from typing import Sequence
@@ -29,7 +30,7 @@ class Peacebot(lightbulb.BotApp):
         self.redis_cache = sake.RedisCache(self, self, address="redis://redis")
         self.custom_activity = CustomActivity(self)
 
-    async def determine_prefix(self, bot , message: hikari.Message) -> str:
+    async def determine_prefix(self, bot, message: hikari.Message) -> str:
         if not message.guild_id:
             return bot_config.prefix
 
