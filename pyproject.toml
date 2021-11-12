@@ -14,7 +14,7 @@ tortoise-orm = "0.17.4"
 aerich = "0.5.3"
 asyncpg = "^0.24.0"
 uvloop = "^0.16.0"
-python-dotenv = "^0.19.1"
+python-dotenv = "^0.19.2"
 
 [tool.poetry.dev-dependencies]
 black = "^21.10b0"
