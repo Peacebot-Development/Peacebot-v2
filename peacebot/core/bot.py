@@ -2,15 +2,16 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from pathlib import Path
 
 import hikari
 import lightbulb
 import sake
-from tortoise import Tortoise
-
 from models import GuildModel
 from peacebot import bot_config
 from peacebot.core.utils.activity import CustomActivity
+from peacebot.core.utils.errors import on_error
+from tortoise import Tortoise
 from tortoise_config import tortoise_config
 
 logger = logging.getLogger("peacebot.main")
@@ -41,11 +42,14 @@ class Peacebot(lightbulb.BotApp):
         self.event_manager.subscribe(hikari.StartedEvent, self.on_started)
         self.event_manager.subscribe(hikari.StoppingEvent, self.on_stopping)
         self.event_manager.subscribe(hikari.StoppedEvent, self.on_stopped)
+        self.event_manager.subscribe(lightbulb.CommandErrorEvent, on_error)
 
         super().run(asyncio_debug=True)
 
     async def on_starting(self, event: hikari.StartingEvent) -> None:
-        self.load_extensions_from("peacebot/core/plugins")
+        path = Path("./peacebot/core/plugins")
+        for ext in path.glob(("**/") + "[!_]*.py"):
+            self.load_extensions(".".join([*ext.parts[:-1], ext.stem]))
         logger.info("Connecting to Redis Cache....")
         await self.redis_cache.open()
         logger.info("Connected to Redis Cache.")
