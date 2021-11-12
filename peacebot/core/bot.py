@@ -46,7 +46,7 @@ class Peacebot(lightbulb.BotApp):
 
         super().run(asyncio_debug=True)
 
-    async def on_starting(self, event: hikari.StartingEvent) -> None:
+    async def on_starting(self, _: hikari.StartingEvent) -> None:
         path = Path("./peacebot/core/plugins")
         for ext in path.glob(("**/") + "[!_]*.py"):
             self.load_extensions(".".join([*ext.parts[:-1], ext.stem]))
