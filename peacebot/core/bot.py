@@ -9,7 +9,7 @@ import sake
 from tortoise import Tortoise
 
 from models import GuildModel
-from peacebot import TEST_GUILD, bot_config
+from peacebot import bot_config
 from peacebot.core.utils.activity import CustomActivity
 from tortoise_config import tortoise_config
 
@@ -23,7 +23,7 @@ class Peacebot(lightbulb.BotApp):
         super().__init__(
             token=bot_config.token,
             prefix=lightbulb.when_mentioned_or(self.determine_prefix),
-            default_enabled_guilds=TEST_GUILD,
+            default_enabled_guilds=bot_config.test_guilds,
             intents=hikari.Intents.ALL,
         )
         self.redis_cache = sake.RedisCache(self, self, address="redis://redis")
