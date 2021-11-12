@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Sequence
 
 import hikari
 import lightbulb
@@ -30,13 +29,12 @@ class Peacebot(lightbulb.BotApp):
         self.redis_cache = sake.RedisCache(self, self, address="redis://redis")
         self.custom_activity = CustomActivity(self)
 
-    async def determine_prefix(self, bot, message: hikari.Message) -> str:
+    async def determine_prefix(self, _, message: hikari.Message) -> str:
         if not message.guild_id:
             return bot_config.prefix
 
         data, _ = await GuildModel.get_or_create(id=message.guild_id)
-        prefix = str(data.prefix)
-        return prefix
+        return str(data.prefix)
 
     def run(self) -> None:
         self.event_manager.subscribe(hikari.StartingEvent, self.on_starting)
@@ -53,14 +51,14 @@ class Peacebot(lightbulb.BotApp):
         logger.info("Connected to Redis Cache.")
         asyncio.create_task(self.connect_db())
 
-    async def on_started(self, event: hikari.StartedEvent) -> None:
+    async def on_started(self, _: hikari.StartedEvent) -> None:
         asyncio.create_task(self.custom_activity.change_status())
         logger.info("Bot has started.")
 
-    async def on_stopping(self, event: hikari.StoppingEvent) -> None:
+    async def on_stopping(self, _: hikari.StoppingEvent) -> None:
         ...
 
-    async def on_stopped(self, event: hikari.StoppedEvent) -> None:
+    async def on_stopped(self, _: hikari.StoppedEvent) -> None:
         await self.redis_cache.close()
         logger.info("Disconnected from Redis Cache.")
 
