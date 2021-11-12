@@ -1,0 +1,15 @@
+{
+  // Format on save
+  "python.formatting.provider": "black",
+  "editor.formatOnType": true,
+  "editor.formatOnSave": true,
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  },
+  "python.linting.flake8Enabled": true,
+  "python.linting.pylintEnabled": false
+}
