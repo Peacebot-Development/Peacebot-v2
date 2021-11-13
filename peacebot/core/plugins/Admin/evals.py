@@ -19,10 +19,6 @@ eval_plugin = lightbulb.Plugin("Evals")
 eval_plugin.add_checks(lightbulb.owner_only)
 
 
-class CodeNotFound(ValueError):
-    pass
-
-
 def _yields_results(*args: io.StringIO) -> collections.Iterator[str]:
     for name, stream in zip(("stdout", "stderr"), args):
         yield f"-dev/{name}:"
