@@ -27,16 +27,16 @@ sudo docker-compose up
 - Branches should be made in this format.
 
 ```
-FEAT -> for new features
-REFACTOR -> for refactoring
-FIX -> for fixing bugs
-CORE -> for formatting
+feat -> for new features
+refactor -> for refactoring
+fix -> for fixing bugs
+core -> for formatting
 
 Convention:
-FEAT/IssueNumber-Issue-Name
+feat/IssueNumber-Issue-Name
 
 Example:
-FEAT/10-eval-commands
+feat/10-eval-commands
 ```
 
 Cheers!
