@@ -7,11 +7,14 @@ from pathlib import Path
 import hikari
 import lightbulb
 import sake
+import yuyo
+from lightbulb.utils.data_store import DataStore
+from tortoise import Tortoise
+
 from models import GuildModel
 from peacebot import bot_config
 from peacebot.core.utils.activity import CustomActivity
 from peacebot.core.utils.errors import on_error
-from tortoise import Tortoise
 from tortoise_config import tortoise_config
 
 logger = logging.getLogger("peacebot.main")
@@ -27,7 +30,10 @@ class Peacebot(lightbulb.BotApp):
             default_enabled_guilds=bot_config.test_guilds,
             intents=hikari.Intents.ALL,
         )
-        self.redis_cache = sake.RedisCache(self, self, address="redis://redis")
+        self.d = DataStore(
+            component_client=yuyo.ComponentClient.from_gateway_bot(self),
+            redis_cache=sake.RedisCache(self, self, address="redis://redis"),
+        )
         self.custom_activity = CustomActivity(self)
 
     async def determine_prefix(self, _, message: hikari.Message) -> str:
@@ -51,7 +57,7 @@ class Peacebot(lightbulb.BotApp):
         for ext in path.glob(("**/") + "[!_]*.py"):
             self.load_extensions(".".join([*ext.parts[:-1], ext.stem]))
         logger.info("Connecting to Redis Cache....")
-        await self.redis_cache.open()
+        await self.d.redis_cache.open()
         logger.info("Connected to Redis Cache.")
         asyncio.create_task(self.connect_db())
 
@@ -60,10 +66,10 @@ class Peacebot(lightbulb.BotApp):
         logger.info("Bot has started.")
 
     async def on_stopping(self, _: hikari.StoppingEvent) -> None:
-        ...
+        await self.d.component_client.close()
 
     async def on_stopped(self, _: hikari.StoppedEvent) -> None:
-        await self.redis_cache.close()
+        await self.d.redis_cache.close()
         logger.info("Disconnected from Redis Cache.")
 
     async def connect_db(self) -> None:
