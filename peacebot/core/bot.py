@@ -7,11 +7,12 @@ from pathlib import Path
 import hikari
 import lightbulb
 import sake
+from tortoise import Tortoise
+
 from models import GuildModel
 from peacebot import bot_config
 from peacebot.core.utils.activity import CustomActivity
 from peacebot.core.utils.errors import on_error
-from tortoise import Tortoise
 from tortoise_config import tortoise_config
 
 logger = logging.getLogger("peacebot.main")
