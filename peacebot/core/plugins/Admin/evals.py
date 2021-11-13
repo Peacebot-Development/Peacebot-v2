@@ -76,6 +76,16 @@ async def eval_python_code_no_capture(
 @lightbulb.command("eval", "Run Evals as Bot owner")
 @lightbulb.implements(commands.PrefixCommand)
 async def eval_command(ctx: lightbulb.context.Context) -> None:
+    """
+    Dynamically evaluate a script in the bot's environment.
+    This can only be used by the bot's owner.
+
+    Example:
+    ;eval ```py
+    for x in range(5):
+        print('Hello World')
+    ```
+    """
     assert ctx.event.message is not None
     code = re.findall(
         r"```(?:[\w]*\n?)([\s\S(^\\`{3})]*?)\n*```", ctx.event.message.content
