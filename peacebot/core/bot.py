@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 
 import hikari
+import lavasnek_rs
 import lightbulb
 import sake
 import yuyo
@@ -12,12 +13,20 @@ from lightbulb.utils.data_store import DataStore
 from tortoise import Tortoise
 
 from models import GuildModel
-from peacebot import bot_config
+from peacebot import bot_config, lavalink_config
+from peacebot.core.event_handler import EventHandler
 from peacebot.core.utils.activity import CustomActivity
 from peacebot.core.utils.errors import on_error
 from tortoise_config import tortoise_config
 
 logger = logging.getLogger("peacebot.main")
+
+HIKARI_VOICE = False
+
+
+class Data:
+    def __init__(self) -> None:
+        self.lavalink: lavasnek_rs.Lavalink | None = None
 
 
 class Peacebot(lightbulb.BotApp):
@@ -31,6 +40,7 @@ class Peacebot(lightbulb.BotApp):
             intents=hikari.Intents.ALL,
         )
         self.d = DataStore(
+            data=Data(),
             component_client=yuyo.ComponentClient.from_gateway_bot(self),
             redis_cache=sake.RedisCache(self, self, address="redis://redis"),
         )
@@ -49,6 +59,7 @@ class Peacebot(lightbulb.BotApp):
         self.event_manager.subscribe(hikari.StoppingEvent, self.on_stopping)
         self.event_manager.subscribe(hikari.StoppedEvent, self.on_stopped)
         self.event_manager.subscribe(lightbulb.CommandErrorEvent, on_error)
+        self.event_manager.subscribe(hikari.ShardReadyEvent, self.on_shard_ready)
 
         super().run(asyncio_debug=True)
 
@@ -60,6 +71,19 @@ class Peacebot(lightbulb.BotApp):
         await self.d.redis_cache.open()
         logger.info("Connected to Redis Cache.")
         asyncio.create_task(self.connect_db())
+
+    async def on_shard_ready(self, _: hikari.ShardReadyEvent) -> None:
+        builder = (
+            lavasnek_rs.LavalinkBuilder(self.get_me(), bot_config.token)
+            .set_host("lavalink")
+            .set_password(lavalink_config.password)
+        )
+        if HIKARI_VOICE:
+            builder.set_start_gateway(False)
+
+        event_handler = EventHandler(self)
+        lava_client = await builder.build(event_handler)
+        self.d.data.lavalink = lava_client
 
     async def on_started(self, _: hikari.StartedEvent) -> None:
         asyncio.create_task(self.custom_activity.change_status())
