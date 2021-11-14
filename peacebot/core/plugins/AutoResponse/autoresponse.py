@@ -17,7 +17,7 @@ autoresponse_plugin.add_checks(
     lightbulb.bot_has_channel_permissions(
         hikari.Permissions.SEND_MESSAGES
         | hikari.Permissions.READ_MESSAGE_HISTORY
-        | hikari.Permissions.EMBED_LINK
+        | hikari.Permissions.EMBED_LINKS
     ),
 )
 
