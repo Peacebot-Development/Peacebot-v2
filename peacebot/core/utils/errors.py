@@ -1,14 +1,19 @@
+import logging
 import math
 import re
 
 import hikari
 import lightbulb
 
+from peacebot.core.utils.embed_colors import EmbedColors
+
+logger = logging.getLogger("error_handler")
+
 
 async def on_error(event: lightbulb.CommandErrorEvent) -> None:
     error = event.exception
     if isinstance(error, lightbulb.CommandNotFound):
-        pass
+        return
 
     if isinstance(error, lightbulb.BotMissingRequiredPermission):
         missing = [
@@ -23,18 +28,19 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
         _message = f"I need the **{fmt}** permission(s) to run this command."
 
         embed = hikari.Embed(
-            title="I am Missing Permissions", color=0xFF0000, description=_message
+            title="I am Missing Permissions",
+            color=EmbedColors.ALERT,
+            description=_message,
         )
-        await event.context.respond(embed=embed)
+        return await event.context.respond(embed=embed)
 
     if isinstance(error, lightbulb.CommandIsOnCooldown):
         embed = hikari.Embed(
             title="Command on Cooldown",
-            color=0xFF0000,
+            color=EmbedColors.ALERT,
             description=f"This command is on cooldown, please retry in {math.ceil(error.retry_after)}s.",
         )
-        await event.context.respond(embed=embed)
-        return
+        return await event.context.respond(embed=embed)
 
     if isinstance(error, lightbulb.MissingRequiredPermission):
         missing = [
@@ -49,13 +55,13 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
 
         embed = hikari.Embed(
             title="You are missing permissions",
-            color=0xFF0000,
+            color=EmbedColors.ALERT,
             description=_message,
         )
-        await event.context.respond(embed=embed)
+        return await event.context.respond(embed=embed)
 
-    else:
-        title = " ".join(re.compile(r"[A-Z][a-z]*").findall(error.__class__.__name__))
-        await event.context.respond(
-            embed=hikari.Embed(title=title, description=str(error), color=0xFF0000)
-        )
+    title = " ".join(re.compile(r"[A-Z][a-z]*").findall(error.__class__.__name__))
+    await event.context.respond(
+        embed=hikari.Embed(title=title, description=str(error), color=EmbedColors.ALERT)
+    )
+    raise error
