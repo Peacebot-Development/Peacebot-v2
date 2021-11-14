@@ -30,7 +30,7 @@ sudo docker-compose up
 feat -> for new features
 refactor -> for refactoring
 fix -> for fixing bugs
-core -> for formatting
+chore -> for formatting
 
 Convention:
 feat/IssueNumber-Issue-Name
