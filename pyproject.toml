@@ -15,11 +15,13 @@ aerich = "0.5.3"
 asyncpg = "^0.24.0"
 uvloop = "^0.16.0"
 python-dotenv = "^0.19.2"
+lavasnek-rs = "^0.1.0-alpha.1"
 
 [tool.poetry.dev-dependencies]
 black = "^21.10b0"
 isort = "^5.10.1"
 pre-commit = "^2.15.0"
+flake8 = "^4.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
