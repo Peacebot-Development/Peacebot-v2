@@ -5,7 +5,6 @@ import hikari
 import lavasnek_rs
 import lightbulb
 from lightbulb import commands
-from lightbulb.errors import LightbulbError
 
 from peacebot.core.utils.embed_colors import EmbedColors
 from peacebot.core.utils.utilities import _chunk, paginate
@@ -348,8 +347,8 @@ async def move(ctx: lightbulb.context.Context) -> None:
         new_index : int
             Index at which song is to be moved.
     """
-    new_index: int = ctx.options.new_index
-    old_index: int = ctx.options.old_index
+    new_index = int(ctx.options.new_index)
+    old_index = int(ctx.options.old_index)
 
     node: lavasnek_rs.Node = await ctx.bot.d.data.lavalink.get_guild_node(ctx.guild_id)
     if not len(node.queue) >= 1:
@@ -360,7 +359,7 @@ async def move(ctx: lightbulb.context.Context) -> None:
 
     try:
         queue.pop(old_index)
-        queue.index(new_index, song_to_be_moved)
+        queue.insert(new_index, song_to_be_moved)
 
     except KeyError:
         raise MusicError(
@@ -416,6 +415,29 @@ async def remove_song(ctx: lightbulb.context.Context) -> None:
         title=f"Removed `{song_to_be_removed.track.info.title}` from the queue.",
         color=EmbedColors.INFO,
     )
+    await ctx.respond(embed=embed)
+
+
+@music_plugin.command
+@lightbulb.command("nowplaying", "See currently playing track's info", aliases=["np"])
+@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
+async def nowplaying(ctx: lightbulb.context.Context) -> None:
+    node: lavasnek_rs.Node = await ctx.bot.d.data.lavalink.get_guild_node(ctx.guild_id)
+
+    if not node or not node.now_playing:
+        raise MusicError("There's nothing playing at the moment!")
+
+    embed = hikari.Embed(
+        title="Now Playing",
+        description=f"[{node.now_playing.track.info.title}]({node.now_playing.track.info.uri})",
+        color=EmbedColors.INFO,
+    )
+    fields = [
+        ("Requested by", f"<@{node.now_playing.requester}>", True),
+        ("Author", node.now_playing.track.info.author, True),
+    ]
+    for name, value, inline in fields:
+        embed.add_field(name=name, value=value, inline=inline)
     await ctx.respond(embed=embed)
 
 
