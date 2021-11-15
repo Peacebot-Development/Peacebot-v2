@@ -5,6 +5,9 @@ from typing import TYPE_CHECKING
 import hikari
 import lavasnek_rs
 
+from peacebot.core.plugins.Music import MusicError
+from peacebot.core.utils.embed_colors import EmbedColors
+
 if TYPE_CHECKING:
     from .bot import Peacebot
 
@@ -26,25 +29,29 @@ class EventHandler:
             channel_id = data[event.guild_id]
             channel = self.bot.cache.get_guild_channel(channel_id)
 
-        queue: list = node.queue
-
         embed = (
             hikari.Embed(
                 title="Now Playing",
                 timestamp=datetime.now().astimezone(),
                 description=f"[{node.now_playing.track.info.title}]({node.now_playing.track.info.uri})",
+                color=EmbedColors.INFO,
             )
-            .add_field(name="Requested By", value=f"<@{node.now_playing.requester}>")
-            .add_field(name="Author", value=node.now_playing.track.info.author)
+            .add_field(
+                name="Requested By",
+                value=f"<@{node.now_playing.requester}>",
+                inline=True,
+            )
+            .add_field(
+                name="Author", value=node.now_playing.track.info.author, inline=True
+            )
         )
 
         await channel.send(embed=embed)
 
     async def track_finish(
-        self, lavalink: lavasnek_rs.Lavalink, event: lavasnek_rs.TrackFinish
+        self, _: lavasnek_rs.Lavalink, event: lavasnek_rs.TrackFinish
     ):
         logger.info(f"Track finished on Guild: {event.guild_id}")
-        node = await lavalink.get_guild_node(event.guild_id)
 
     async def track_exception(
         self, lavalink: lavasnek_rs.Lavalink, event: lavasnek_rs.TrackException
@@ -55,7 +62,7 @@ class EventHandler:
         node = await lavalink.get_guild_node(event.guild_id)
 
         if not skip:
-            await event.message.respond("Nothing to Skip")
+            raise MusicError("Nothing to Skip.")
         else:
             if not node.queue and not node.now_playing:
                 await lavalink.stop(event.guild_id)
