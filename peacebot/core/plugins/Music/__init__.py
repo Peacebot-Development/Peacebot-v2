@@ -1,4 +1,10 @@
+import re
+
 import lightbulb
+
+URL_REGEX = re.compile(
+    r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+)
 
 
 class MusicError(lightbulb.LightbulbError):
@@ -49,7 +55,7 @@ def check_voice_state(f):
 
         if voice_state_bot is None:
             raise MusicError(
-                "I am not connected to any Voice Channel.\nUse `/join` to connect me to one."
+                f"I am not connected to any Voice Channel.\nUse `{ctx.prefix}join` to connect me to one."
             )
 
         if voice_state_author is None:
