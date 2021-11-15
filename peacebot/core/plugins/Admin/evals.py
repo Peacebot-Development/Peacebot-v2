@@ -15,7 +15,7 @@ import lightbulb
 import yuyo
 from lightbulb import commands
 
-eval_plugin = lightbulb.Plugin("Evals")
+eval_plugin = lightbulb.Plugin("Evals", "Run evals as bot owner in the guild")
 eval_plugin.add_checks(lightbulb.owner_only)
 
 
