@@ -1,6 +1,6 @@
 [[package]]
 name = "aerich"
-version = "0.5.3"
+version = "0.5.7"
 description = "A database migrations tool for Tortoise ORM."
 category = "main"
 optional = false
@@ -639,12 +639,12 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.11"
-content-hash = "d94f6e637928c72356406cdc9f1e7b25c7cf1d3b73d777dbbfdaf31b0e7dd4ee"
+content-hash = "6e8871b78c8776a693b1b6a27802a763651d139983c9d1d1df9b5e31cd92638d"
 
 [metadata.files]
 aerich = [
-    {file = "aerich-0.5.3-py3-none-any.whl", hash = "sha256:0338d06abe4cb9475a63b2193c37cb140d284adeb0fc7bb0cc73c44735443f70"},
-    {file = "aerich-0.5.3.tar.gz", hash = "sha256:30a1b3e34f690479c9b78cf39baebab840907d58c6614fe1929b99192c7748f4"},
+    {file = "aerich-0.5.7-py3-none-any.whl", hash = "sha256:0684eb3d631c7c6e14caf2b2c3b9dad1c15ce8ade5771773c015a302f54ff4f6"},
+    {file = "aerich-0.5.7.tar.gz", hash = "sha256:f9ef8796f7a13ba9965eda0aa6840033bbd42b2e4e52c24d8f0dbdb85e4a5187"},
 ]
 aiohttp = [
     {file = "aiohttp-3.7.4.post0-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:3cf75f7cdc2397ed4442594b935a11ed5569961333d49b7539ea741be2cc79d5"},
