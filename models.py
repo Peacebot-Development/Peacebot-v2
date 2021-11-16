@@ -49,3 +49,4 @@ class AutoResponseModel(Model):
     class Meta:
         table = "autoresponses"
         table_description = "Represents the autoresponses for each GuildModel"
+        unique_together = (("guild", "trigger"),)
