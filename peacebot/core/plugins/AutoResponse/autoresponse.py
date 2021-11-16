@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import logging
-from sqlite3 import IntegrityError
 
 import hikari
 import lightbulb
 from lightbulb import commands, context
-from tortoise.exceptions import IntegrityError
 
 import peacebot.core.utils.helper_functions as hf
 from models import AutoResponseModel, GuildModel
