@@ -239,6 +239,19 @@ docs = ["furo (>=2021.8.17b43)", "sphinx (>=4.1)", "sphinx-autodoc-typehints (>=
 testing = ["covdefaults (>=1.2.0)", "coverage (>=4)", "pytest (>=4)", "pytest-cov", "pytest-timeout (>=1.4.2)"]
 
 [[package]]
+name = "flake8"
+version = "4.0.1"
+description = "the modular source code checker: pep8 pyflakes and co"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+mccabe = ">=0.6.0,<0.7.0"
+pycodestyle = ">=2.8.0,<2.9.0"
+pyflakes = ">=2.4.0,<2.5.0"
+
+[[package]]
 name = "hikari"
 version = "2.0.0.dev103"
 description = "A sane Discord API for Python 3 built on asyncio and good intentions"
@@ -358,6 +371,22 @@ colors = ["colorama (>=0.4.3,<0.5.0)"]
 plugins = ["setuptools"]
 
 [[package]]
+name = "lavasnek-rs"
+version = "0.1.0_alpha.1"
+description = "lavalink-rs bindings for Python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "mccabe"
+version = "0.6.1"
+description = "McCabe checker, plugin for flake8"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "multidict"
 version = "5.2.0"
 description = "multidict implementation"
@@ -426,6 +455,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "pycodestyle"
+version = "2.8.0"
+description = "Python style guide checker"
+category = "dev"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[[package]]
 name = "pydantic"
 version = "1.8.2"
 description = "Data validation and settings management using python 3.6 type hinting"
@@ -439,6 +476,14 @@ typing-extensions = ">=3.7.4.3"
 [package.extras]
 dotenv = ["python-dotenv (>=0.10.4)"]
 email = ["email-validator (>=1.0.3)"]
+
+[[package]]
+name = "pyflakes"
+version = "2.4.0"
+description = "passive checker of Python programs"
+category = "dev"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "pyparsing"
@@ -593,7 +638,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.11"
-content-hash = "b82747c6c2e008878c5c6658851c6defee37d5de5e8f0db3a826edfb1eb92747"
+content-hash = "d94f6e637928c72356406cdc9f1e7b25c7cf1d3b73d777dbbfdaf31b0e7dd4ee"
 
 [metadata.files]
 aerich = [
@@ -718,6 +763,10 @@ filelock = [
     {file = "filelock-3.3.2-py3-none-any.whl", hash = "sha256:bb2a1c717df74c48a2d00ed625e5a66f8572a3a30baacb7657add1d7bac4097b"},
     {file = "filelock-3.3.2.tar.gz", hash = "sha256:7afc856f74fa7006a289fd10fa840e1eebd8bbff6bffb69c26c54a0512ea8cf8"},
 ]
+flake8 = [
+    {file = "flake8-4.0.1-py2.py3-none-any.whl", hash = "sha256:479b1304f72536a55948cb40a32dce8bb0ffe3501e26eaf292c7e60eb5e0428d"},
+    {file = "flake8-4.0.1.tar.gz", hash = "sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d"},
+]
 hikari = [
     {file = "hikari-2.0.0.dev103-py3-none-any.whl", hash = "sha256:b890b87f5207a7f2ef52613403f437142856500ca3a63eaf84e9b7547103838d"},
     {file = "hikari-2.0.0.dev103.tar.gz", hash = "sha256:710f3c8e79f94604f778d973cbe8c3a2e6c0a8873a237a143de539730d2006cf"},
@@ -789,6 +838,27 @@ iso8601 = [
 isort = [
     {file = "isort-5.10.1-py3-none-any.whl", hash = "sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7"},
     {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
+]
+lavasnek-rs = [
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp310-cp310-macosx_10_7_x86_64.whl", hash = "sha256:c6103cf2b3f581653d7ff4d6b46046847c8fe3d4059c872cba7d84ee6261d39d"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp310-cp310-manylinux_2_24_x86_64.whl", hash = "sha256:ef007ae705e51e15860307ee062a70765636f8644cb3f662fa1266371abfe7de"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp310-none-win_amd64.whl", hash = "sha256:e79ad3654622e8a5b5eb19f020a36ae5f95044a6a7eb961ce37233c7c6266ada"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp36-cp36m-macosx_10_7_x86_64.whl", hash = "sha256:1cd06534b8edb6177fec65e393c8f046f75b6a261a0d63d2c80d6c07578bdd3d"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp36-cp36m-manylinux_2_24_x86_64.whl", hash = "sha256:e3cc2322c8da67f13a581afa5cf8dd69a430aa2620fe8c1f3450cde1da3e118d"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp36-none-win_amd64.whl", hash = "sha256:d949aa31e57d1fba8653f9697763f009cfd83d4ba8443c893b46f22d1c3a06e2"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp37-cp37m-macosx_10_7_x86_64.whl", hash = "sha256:d9c451e40d6800233654e881cfa16a714a7bed34369073921eb5ee5b65918bc7"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp37-cp37m-manylinux_2_24_x86_64.whl", hash = "sha256:72c148b49b870c8462d6577d693671b23f2fdd0075239b20cf9388589bd5916e"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp37-none-win_amd64.whl", hash = "sha256:63db3166421661ae8407ec94595627b825a0e46706a1435e58c6f5014b10fa0f"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp38-cp38-macosx_10_7_x86_64.whl", hash = "sha256:015c65286bb9c59a28fe25176bc023b1ea1b331dd887675cff1c63886d44121d"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp38-cp38-manylinux_2_24_x86_64.whl", hash = "sha256:62aa2f8cdc6612daecb63a88dd12f46a5d2b0577c537e63caacd9ae29990e4d0"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp38-none-win_amd64.whl", hash = "sha256:b9c5bc6eddb3456b732727bd2c6370bbbc894bc4fe5927a0c157e699728b595b"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp39-cp39-macosx_10_7_x86_64.whl", hash = "sha256:c4fc6a660238984dc192377e3ea0d084d51f8e257c3bcb0abeab33f28b14fc56"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp39-cp39-manylinux_2_24_x86_64.whl", hash = "sha256:2458bfa362d886cc1e91c1fd909879701efa9ef383f58e8d766271f23f8de8bb"},
+    {file = "lavasnek_rs-0.1.0_alpha.1-cp39-none-win_amd64.whl", hash = "sha256:6185ef3e15f4896ee2c31e49fd71c2257b8d5b4205dfde169f9839f256bd1f5c"},
+]
+mccabe = [
+    {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
+    {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 multidict = [
     {file = "multidict-5.2.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:3822c5894c72e3b35aae9909bef66ec83e44522faf767c0ad39e0e2de11d3b55"},
@@ -887,6 +957,10 @@ pre-commit = [
 pure25519 = [
     {file = "pure25519-0.0.1.tar.gz", hash = "sha256:8982b990294efc7bef12d8e89e3e3d0a8249ef7e21adf567660941fce255033d"},
 ]
+pycodestyle = [
+    {file = "pycodestyle-2.8.0-py2.py3-none-any.whl", hash = "sha256:720f8b39dde8b293825e7ff02c475f3077124006db4f440dcbc9a20b76548a20"},
+    {file = "pycodestyle-2.8.0.tar.gz", hash = "sha256:eddd5847ef438ea1c7870ca7eb78a9d47ce0cdb4851a5523949f2601d0cbbe7f"},
+]
 pydantic = [
     {file = "pydantic-1.8.2-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:05ddfd37c1720c392f4e0d43c484217b7521558302e7069ce8d318438d297739"},
     {file = "pydantic-1.8.2-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:a7c6002203fe2c5a1b5cbb141bb85060cbff88c2d78eccbc72d97eb7022c43e4"},
@@ -910,6 +984,10 @@ pydantic = [
     {file = "pydantic-1.8.2-cp39-cp39-win_amd64.whl", hash = "sha256:4be75bebf676a5f0f87937c6ddb061fa39cbea067240d98e298508c1bda6f3f3"},
     {file = "pydantic-1.8.2-py3-none-any.whl", hash = "sha256:fec866a0b59f372b7e776f2d7308511784dace622e0992a0b59ea3ccee0ae833"},
     {file = "pydantic-1.8.2.tar.gz", hash = "sha256:26464e57ccaafe72b7ad156fdaa4e9b9ef051f69e175dbbb463283000c05ab7b"},
+]
+pyflakes = [
+    {file = "pyflakes-2.4.0-py2.py3-none-any.whl", hash = "sha256:3bb3a3f256f4b7968c9c788781e4ff07dce46bdf12339dcda61053375426ee2e"},
+    {file = "pyflakes-2.4.0.tar.gz", hash = "sha256:05a85c2872edf37a4ed30b0cce2f6093e1d0581f8c19d7393122da7e25b2b24c"},
 ]
 pyparsing = [
     {file = "pyparsing-3.0.6-py3-none-any.whl", hash = "sha256:04ff808a5b90911829c55c4e26f75fa5ca8a2f5f36aa3a51f68e27033341d3e4"},

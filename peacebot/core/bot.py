@@ -5,18 +5,29 @@ import logging
 from pathlib import Path
 
 import hikari
+import lavasnek_rs
 import lightbulb
 import sake
+import yuyo
+from lightbulb.utils.data_store import DataStore
 from tortoise import Tortoise
 
 from models import GuildModel
-from peacebot import bot_config
+from peacebot import bot_config, lavalink_config
+from peacebot.core.event_handler import EventHandler
 from peacebot.core.utils.activity import CustomActivity
 from peacebot.core.utils.errors import on_error
 from tortoise_config import tortoise_config
 
 logger = logging.getLogger("peacebot.main")
 logger.setLevel(logging.DEBUG)
+
+HIKARI_VOICE = False
+
+
+class Data:
+    def __init__(self) -> None:
+        self.lavalink: lavasnek_rs.Lavalink | None = None
 
 
 class Peacebot(lightbulb.BotApp):
@@ -29,7 +40,11 @@ class Peacebot(lightbulb.BotApp):
             default_enabled_guilds=bot_config.test_guilds,
             intents=hikari.Intents.ALL,
         )
-        self.redis_cache = sake.RedisCache(self, self, address="redis://redis")
+        self.d = DataStore(
+            data=Data(),
+            component_client=yuyo.ComponentClient.from_gateway_bot(self),
+            redis_cache=sake.RedisCache(self, self, address="redis://redis"),
+        )
         self.custom_activity = CustomActivity(self)
 
     async def determine_prefix(self, _, message: hikari.Message) -> str:
@@ -45,6 +60,7 @@ class Peacebot(lightbulb.BotApp):
         self.event_manager.subscribe(hikari.StoppingEvent, self.on_stopping)
         self.event_manager.subscribe(hikari.StoppedEvent, self.on_stopped)
         self.event_manager.subscribe(lightbulb.CommandErrorEvent, on_error)
+        self.event_manager.subscribe(hikari.ShardReadyEvent, self.on_shard_ready)
 
         super().run(asyncio_debug=True)
 
@@ -53,19 +69,32 @@ class Peacebot(lightbulb.BotApp):
         for ext in path.glob(("**/") + "[!_]*.py"):
             self.load_extensions(".".join([*ext.parts[:-1], ext.stem]))
         logger.info("Connecting to Redis Cache....")
-        await self.redis_cache.open()
+        await self.d.redis_cache.open()
         logger.info("Connected to Redis Cache.")
         asyncio.create_task(self.connect_db())
+
+    async def on_shard_ready(self, _: hikari.ShardReadyEvent) -> None:
+        builder = (
+            lavasnek_rs.LavalinkBuilder(self.get_me(), bot_config.token)
+            .set_host("lavalink")
+            .set_password(lavalink_config.password)
+        )
+        if HIKARI_VOICE:
+            builder.set_start_gateway(False)
+
+        event_handler = EventHandler(self)
+        lava_client = await builder.build(event_handler)
+        self.d.data.lavalink = lava_client
 
     async def on_started(self, _: hikari.StartedEvent) -> None:
         asyncio.create_task(self.custom_activity.change_status())
         logger.info("Bot has started.")
 
     async def on_stopping(self, _: hikari.StoppingEvent) -> None:
-        ...
+        await self.d.component_client.close()
 
     async def on_stopped(self, _: hikari.StoppedEvent) -> None:
-        await self.redis_cache.close()
+        await self.d.redis_cache.close()
         logger.info("Disconnected from Redis Cache.")
 
     async def connect_db(self) -> None:

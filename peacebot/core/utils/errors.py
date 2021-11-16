@@ -42,6 +42,11 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
         )
         return await event.context.respond(embed=embed)
 
+    if isinstance(error, lightbulb.NotEnoughArguments):
+        return await event.bot.help_command.send_command_help(
+            event.context, event.context.command
+        )
+
     if isinstance(error, lightbulb.MissingRequiredPermission):
         missing = [
             perm.replace("_", " ").replace("guild", "server").title()
