@@ -20,6 +20,7 @@ from peacebot.core.utils.errors import on_error
 from tortoise_config import tortoise_config
 
 logger = logging.getLogger("peacebot.main")
+logger.setLevel(logging.DEBUG)
 
 HIKARI_VOICE = False
 
