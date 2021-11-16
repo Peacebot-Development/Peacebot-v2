@@ -1,5 +1,6 @@
 import re
 
+import lavasnek_rs
 import lightbulb
 
 URL_REGEX = re.compile(
@@ -9,9 +10,6 @@ URL_REGEX = re.compile(
 
 class MusicError(lightbulb.LightbulbError):
     pass
-
-
-music_plugin = lightbulb.Plugin("Music")
 
 
 async def _join(ctx: lightbulb.context.Context) -> int:
@@ -71,3 +69,7 @@ def check_voice_state(f):
         return await f(ctx, *args, **kwargs)
 
     return predicate
+
+
+def fetch_lavalink(ctx: lightbulb.context.Context) -> lavasnek_rs.Lavalink:
+    return ctx.bot.d.data.lavalink

@@ -9,7 +9,9 @@ from lightbulb import commands
 from peacebot.core.utils.embed_colors import EmbedColors
 from peacebot.core.utils.utilities import _chunk, paginate
 
-from . import URL_REGEX, MusicError, _join, _leave, check_voice_state, music_plugin
+from . import URL_REGEX, MusicError, _join, _leave, check_voice_state, fetch_lavalink
+
+music_plugin = lightbulb.Plugin("Music")
 
 
 @music_plugin.command
@@ -64,33 +66,32 @@ async def play(ctx: lightbulb.context.Context) -> None:
     query : str
         Name of the song or URL to the playlist.
     """
+    lavalink = fetch_lavalink(ctx)
     if ctx.interaction is None:
         query = " ".join(ctx.options.query)
     else:
         query = ctx.options.query
-    con = await ctx.bot.d.data.lavalink.get_guild_gateway_connection_info(ctx.guild_id)
+    con = await lavalink.get_guild_gateway_connection_info(ctx.guild_id)
 
     if not con:
         await _join(ctx)
 
-    query_information = await ctx.bot.d.data.lavalink.auto_search_tracks(query)
+    query_information = await lavalink.auto_search_tracks(query)
     if not query_information.tracks:
         raise MusicError("No songs found according to the query.")
 
     try:
         if not URL_REGEX.match(query):
-            await ctx.bot.d.data.lavalink.play(
-                ctx.guild_id, query_information.tracks[0]
-            ).requester(ctx.author.id).queue()
+            await lavalink.play(ctx.guild_id, query_information.tracks[0]).requester(
+                ctx.author.id
+            ).queue()
         else:
             for track in query_information.tracks:
-                await ctx.bot.d.data.lavalink.play(ctx.guild_id, track).requester(
+                await lavalink.play(ctx.guild_id, track).requester(
                     ctx.author.id
                 ).queue()
 
-        node: lavasnek_rs.Node = await ctx.bot.d.data.lavalink.get_guild_node(
-            ctx.guild_id
-        )
+        node: lavasnek_rs.Node = await lavalink.get_guild_node(ctx.guild_id)
         if not node:
             pass
         else:
@@ -120,8 +121,9 @@ async def queue(ctx: lightbulb.context.Context) -> None:
     ----------
     None
     """
+    lavalink = fetch_lavalink(ctx)
     song_queue = []
-    node: lavasnek_rs.Node = await ctx.bot.d.data.lavalink.get_guild_node(ctx.guild_id)
+    node = await lavalink.get_guild_node(ctx.guild_id)
     if not node or not node.queue:
         raise MusicError("There are no tracks in the queue.")
 
@@ -177,15 +179,16 @@ async def pause(ctx: lightbulb.context.Context) -> None:
     ----------
     None
     """
-    node: lavasnek_rs.Node = await ctx.bot.d.data.lavalink.get_guild_node(ctx.guild_id)
+    lavalink = fetch_lavalink(ctx)
+    node = await lavalink.get_guild_node(ctx.guild_id)
     if not node or not node.now_playing:
         raise MusicError("There are no tracks playing currently!")
 
     if node.is_paused:
         raise MusicError("Playback seems to be already paused.")
 
-    await ctx.bot.d.data.lavalink.pause(ctx.guild_id)
-    await ctx.bot.d.data.lavalink.set_pause(ctx.guild_id, True)
+    await lavalink.pause(ctx.guild_id)
+    await lavalink.set_pause(ctx.guild_id, True)
 
     await ctx.respond("⏸️ Paused..")
 
@@ -205,13 +208,14 @@ async def resume(ctx: lightbulb.context.Context) -> None:
     ----------
     None
     """
-    node: lavasnek_rs.Node = await ctx.bot.d.data.lavalink.get_guild_node(ctx.guild_id)
+    lavalink = fetch_lavalink(ctx)
+    node = await lavalink.get_guild_node(ctx.guild_id)
 
     if not node or not node.now_playing:
         raise MusicError("There are no tracks playing currently!")
 
     if node.is_paused:
-        await ctx.bot.d.data.lavalink.resume(ctx.guild_id)
+        await lavalink.resume(ctx.guild_id)
         await ctx.respond("🎵 Playback resumed.")
     else:
         raise MusicError(
@@ -234,7 +238,8 @@ async def shuffle(ctx: lightbulb.context.Context) -> None:
     ----------
     None
     """
-    node: lavasnek_rs.Node = await ctx.bot.d.data.lavalink.get_guild_node(ctx.guild_id)
+    lavalink = fetch_lavalink(ctx)
+    node = await lavalink.get_guild_node(ctx.guild_id)
 
     if not len(node.queue) > 1:
         raise MusicError("Cannot shuffle a single song 🥴")
@@ -244,7 +249,7 @@ async def shuffle(ctx: lightbulb.context.Context) -> None:
     queue.insert(0, node.queue[0])
 
     node.queue = queue
-    await ctx.bot.d.data.lavalink.set_guild_node(ctx.guild_id, node)
+    await lavalink.set_guild_node(ctx.guild_id, node)
 
     await ctx.respond("🔀 Queue has been shuffled.")
 
@@ -270,14 +275,15 @@ async def skip(ctx: lightbulb.context.Context) -> None:
     ----------
     None
     """
-    skip = await ctx.bot.d.data.lavalink.skip(ctx.guild_id)
-    node: lavasnek_rs.Node = await ctx.bot.d.data.lavalink.get_guild_node(ctx.guild_id)
+    lavalink = fetch_lavalink(ctx)
+    skip = await lavalink.skip(ctx.guild_id)
+    node = await lavalink.get_guild_node(ctx.guild_id)
 
     if not skip:
         raise MusicError("I don't see any tracks to skip 😕")
 
     if not node.queue and not node.now_playing:
-        await ctx.bot.d.data.lavalink.stop(ctx.guild_id)
+        await lavalink.stop(ctx.guild_id)
 
     embed = hikari.Embed(
         title="⏭️ Skipped",
@@ -304,7 +310,8 @@ async def stop(ctx: lightbulb.context.Context) -> None:
     ----------
     None
     """
-    await ctx.bot.d.data.lavalink.stop(ctx.guild_id)
+    lavalink = fetch_lavalink(ctx)
+    await lavalink.stop(ctx.guild_id)
 
     await ctx.respond("⏹️ Playback has been stopped.")
 
@@ -347,10 +354,11 @@ async def move(ctx: lightbulb.context.Context) -> None:
         new_index : int
             Index at which song is to be moved.
     """
+    lavalink = fetch_lavalink(ctx)
     new_index = int(ctx.options.new_index)
     old_index = int(ctx.options.old_index)
 
-    node: lavasnek_rs.Node = await ctx.bot.d.data.lavalink.get_guild_node(ctx.guild_id)
+    node = await lavalink.get_guild_node(ctx.guild_id)
     if not len(node.queue) >= 1:
         raise MusicError("There seems to be only one song in the queue.")
 
@@ -368,7 +376,7 @@ async def move(ctx: lightbulb.context.Context) -> None:
 
     node.queue = queue
 
-    await ctx.bot.d.data.lavalink.set_guild_node(ctx.guild_id, node)
+    await lavalink.set_guild_node(ctx.guild_id, node)
     embed = hikari.Embed(
         title=f"Moved `{song_to_be_moved.track.info.title}` to Position `{new_index}`",
         color=EmbedColors.INFO,
@@ -391,8 +399,9 @@ async def remove_song(ctx: lightbulb.context.Context) -> None:
     index : int
             Index of the song to be removed
     """
+    lavalink = fetch_lavalink(ctx)
     index = ctx.options.index
-    node: lavasnek_rs.Node = await ctx.bot.d.data.lavalink.get_guild_node(ctx.guild_id)
+    node = await lavalink.get_guild_node(ctx.guild_id)
     if not node.queue:
         raise MusicError("No songs in the queue")
 
@@ -410,7 +419,7 @@ async def remove_song(ctx: lightbulb.context.Context) -> None:
         raise MusicError("No such song exists at the index you provided.")
 
     node.queue = queue
-    await ctx.bot.d.data.lavalink.set_guild_node(ctx.guild_id, node)
+    await lavalink.set_guild_node(ctx.guild_id, node)
     embed = hikari.Embed(
         title=f"Removed `{song_to_be_removed.track.info.title}` from the queue.",
         color=EmbedColors.INFO,
@@ -422,7 +431,8 @@ async def remove_song(ctx: lightbulb.context.Context) -> None:
 @lightbulb.command("nowplaying", "See currently playing track's info", aliases=["np"])
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
 async def nowplaying(ctx: lightbulb.context.Context) -> None:
-    node: lavasnek_rs.Node = await ctx.bot.d.data.lavalink.get_guild_node(ctx.guild_id)
+    lavalink = fetch_lavalink(ctx)
+    node = await lavalink.get_guild_node(ctx.guild_id)
 
     if not node or not node.now_playing:
         raise MusicError("There's nothing playing at the moment!")
