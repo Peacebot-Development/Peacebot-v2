@@ -2,19 +2,22 @@
 name = "peacebot v2"
 version = "0.1.0"
 description = "A Discord Bot written in Hikari API Wrapper and Lightbulb Command Handler that implements Prefix and Slash Commands in a guild"
-authors = ["Nishant Sapkota <snishant306@gmail.com>"]
+authors = [
+    "Nishant Sapkota <snishant306@gmail.com>",
+    "Samrid Pandit <samrid.pandit@gmail.com>",
+]
 license = "MIT"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.11"
 hikari-lightbulb = "2.0.0a7"
-hikari-sake = {git = "https://github.com/FasterSpeeding/Sake", rev = "task/raw-dispatch"}
+hikari-sake = { git = "https://github.com/FasterSpeeding/Sake", rev = "task/raw-dispatch" }
 pydantic = "^1.8.2"
-tortoise-orm = "0.17.4"
 aerich = "0.5.3"
 asyncpg = "^0.24.0"
 uvloop = "^0.16.0"
 python-dotenv = "^0.19.2"
+tortoise-orm = "^0.17.8"
 
 [tool.poetry.dev-dependencies]
 black = "^21.10b0"
