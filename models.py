@@ -45,6 +45,10 @@ class AutoResponseModel(Model):
     created_by = fields.BigIntField(
         description="ID of the user who created the autoresponse",
     )
+    mentions = fields.BooleanField(
+        default=False,
+        description="If the autoresponse should mention the user/ role/ everyone",
+    )
 
     class Meta:
         table = "autoresponses"

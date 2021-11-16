@@ -92,6 +92,12 @@ async def autoresponse_list(ctx: context.Context) -> None:
     bool,
     required=False,
 )
+@lightbulb.option(
+    "mentions",
+    "If the response should mention the role/ user/ everyone or not",
+    bool,
+    default=False,
+)
 @lightbulb.option("response", "The response to send when trigger is pressed")
 @lightbulb.option("trigger", "The trigger which will trigger the autoresponse")
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD))
@@ -113,6 +119,7 @@ async def autoresponse_add(ctx: context.Context) -> None:
         created_by=ctx.author.id,
         allowed_channel=ctx.options.allowed_channel,
         extra_text=ctx.options.extra_text or False,
+        mentions=ctx.options.mentions or False,
     )
 
     await ctx.respond(
@@ -294,7 +301,12 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
         return
 
     channel = event.get_channel()
-    await channel.send(autoresponse_model.response)
+    await channel.send(
+        autoresponse_model.response,
+        user_mentions=autoresponse_model.mentions,
+        role_mentions=autoresponse_model.mentions,
+        mentions_everyone=autoresponse_model.mentions,
+    )
 
 
 def load(bot: lightbulb.BotApp) -> None:
