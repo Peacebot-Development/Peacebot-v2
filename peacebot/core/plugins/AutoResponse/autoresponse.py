@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import logging
-import uuid
+from sqlite3 import IntegrityError
 
 import hikari
 import lightbulb
 from lightbulb import commands, context
+from tortoise.exceptions import IntegrityError
 
-from models import AutoResponseModel
+import peacebot.core.utils.helper_functions as hf
+from models import AutoResponseModel, GuildModel
 from peacebot.core.utils.embed_colors import EmbedColors
 
-from . import AutoResponseError, handle_message
+from . import AutoResponseError, clone_autoresponse, handle_message, is_valid_uuid
 
 autoresponse_plugin = lightbulb.Plugin("AutoResponse")
 autoresponse_plugin.add_checks(
@@ -21,7 +23,7 @@ autoresponse_plugin.add_checks(
     lightbulb.bot_has_channel_permissions(
         hikari.Permissions.SEND_MESSAGES
         | hikari.Permissions.READ_MESSAGE_HISTORY
-        | hikari.Permissions.EMBED_LINK
+        | hikari.Permissions.EMBED_LINKS
     ),
 )
 
@@ -94,7 +96,6 @@ async def autoresponse_list(ctx: context.Context) -> None:
 )
 @lightbulb.option("response", "The response to send when trigger is pressed")
 @lightbulb.option("trigger", "The trigger which will trigger the autoresponse")
-@lightbulb.option("trigger", "Trigger of the autoresponse to remove")
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD))
 @lightbulb.command("add", "Add a new autoresponse to the server")
 @lightbulb.implements(commands.PrefixSubCommand, commands.SlashSubCommand)
@@ -137,7 +138,7 @@ async def autoresponse_remove(ctx: context.Context) -> None:
     )
     if not autoresponse_model:
         raise AutoResponseError(
-            f"`{trigger}` is not a valid autoresponse in this guild or, may have already been deleted!"
+            f"`{trigger}` is not a valid autoresponse in this server or, may have already been deleted!"
         )
 
     await autoresponse_model.delete()
@@ -154,7 +155,7 @@ async def autoresponse_info(ctx: context.Context):
     )
     if not autoresponse:
         raise AutoResponseError(
-            f"`{ctx.options.trigger}` is not a valid autoresponse in this guild or, may have already been deleted!"
+            f"`{ctx.options.trigger}` is not a valid autoresponse in this server or, may have already been deleted!"
         )
 
     embed = (
@@ -184,11 +185,13 @@ async def autoresponse_info(ctx: context.Context):
     "trigger", "Trigger of the autoresponse you want to export", required=False
 )
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD))
-@lightbulb.command("export", "Export autoresponse(s) to another guild")
+@lightbulb.command("export", "Export autoresponse(s) to another server")
 @lightbulb.implements(commands.PrefixSubCommand, commands.SlashSubCommand)
 async def autoresponse_export(ctx: context.Context) -> None:
     if not ctx.options.trigger:
-        return await ctx.respond(f"```{ctx.guild_id}```")
+        return await ctx.respond(
+            f"You can import all the **autoresponses in this guild** using this id: ```{ctx.guild_id}```"
+        )
 
     autoresponse_model = await AutoResponseModel.get_or_none(
         guild__id=ctx.guild_id, trigger=ctx.options.trigger.lower()
@@ -198,41 +201,63 @@ async def autoresponse_export(ctx: context.Context) -> None:
             "Autoresponse with the provided trigger does not exist in this server."
         )
 
-    await ctx.respond(f"```{autoresponse_model.id}```")
+    await ctx.respond(
+        f"You can **import autoresponse **`{ctx.options.trigger}` with this id: ```{autoresponse_model.id}```"
+    )
 
 
 @autoresponse.child
-@lightbulb.option("id", "Id of the autoresponse(s)", int | uuid.UUID)
+@lightbulb.option("id", "Id of the autoresponse(s)", str)
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD))
 @lightbulb.command("import", "Import autoreponse(s) from another server")
 @lightbulb.implements(commands.PrefixSubCommand, commands.SlashSubCommand)
+@hf.error_handler()
 async def autoresponse_import(ctx: context.Context) -> None:
-    _id: uuid.UUID | int = ctx.options.id
-    if isinstance(_id, uuid.UUID):
+    _id: str = ctx.options.id
+    if _id == str(ctx.guild_id):
+        raise AutoResponseError(
+            "Please note that you **CANNOT** import autoresponse from the **Same Server**"
+        )
+
+    guild_model = await GuildModel.get_or_none(id=ctx.guild_id)
+
+    if is_valid_uuid(_id):
         autoresponse_model = await AutoResponseModel.get_or_none(id=_id)
         if not autoresponse_model:
-            raise AutoResponseError("Invalid ID provided.")
+            raise AutoResponseError("Autoresponse with the provided id does not exist")
 
-        autoresponse_model.clone().guild_id = ctx.guild_id
-        await autoresponse_model.save()
+        new_model = clone_autoresponse(autoresponse_model, guild_model)
+        await new_model.save()
 
-    elif isinstance(_id, int):
-        autoresponse_models = await AutoResponseModel.filter(guild__id=ctx.guild_id)
+        return await ctx.respond(
+            f"**Autoresponse** `{autoresponse_model.trigger}` has been imported to this server."
+        )
+
+    elif _id.isdecimal():
+        autoresponse_models = await AutoResponseModel.filter(guild_id=_id)
         if not autoresponse_models:
-            raise AutoResponseError("Invalid ID provided.")
+            raise AutoResponseError(
+                "There were no autoresponses for the provided sever id"
+            )
 
-        autoresponse_models: list[AutoResponseModel] = [
-            model.clone().__setattr__("guild_id", ctx.guild_id)
-            for model in autoresponse_models
+        server_autoresponses = await AutoResponseModel.filter(
+            guild_id=ctx.guild_id
+        ).only("trigger")
+
+        autoresponse_models = filter(
+            (lambda x: x.trigger not in [x.trigger for x in server_autoresponses]),
+            autoresponse_models,
+        )
+
+        autoresponse_models = [
+            clone_autoresponse(model, guild_model) for model in autoresponse_models
         ]
         await AutoResponseModel.bulk_create(autoresponse_models)
+        return await ctx.respond(
+            "AutoResponse(s) have been **imported** from the provided server."
+        )
 
-    else:
-        raise AutoResponseError("Invalid ID provided.")
-
-    await ctx.respond(
-        f"Autoresponse(s) have been imported according to the provided import ID."
-    )
+    raise AutoResponseError("Invalid import ID provided!")
 
 
 @autoresponse_plugin.listener(hikari.GuildMessageCreateEvent)
