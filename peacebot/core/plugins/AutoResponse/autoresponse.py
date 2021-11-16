@@ -260,6 +260,32 @@ async def autoresponse_import(ctx: context.Context) -> None:
     raise AutoResponseError("Invalid import ID provided!")
 
 
+@autoresponse.child
+@lightbulb.option(
+    "bool", "Either to enable or disable the autoresponse", bool, required=False
+)
+@lightbulb.option("trigger", "Trigger of the autoresponse to toggle")
+@lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD))
+@lightbulb.command("toggle", "Enable or disable the autoresponse", aliases=["tgl"])
+@lightbulb.implements(commands.PrefixSubCommand, commands.SlashSubCommand)
+@hf.error_handler()
+async def autoresponse_toggle(ctx: context.Context) -> None:
+    autoresponse = await AutoResponseModel.get_or_none(
+        guild__id=ctx.guild_id, trigger__iexact=ctx.options.trigger
+    )
+    if not autoresponse:
+        raise AutoResponseError(
+            f"`{ctx.options.trigger}` is not a valid autoresponse in this server or, may have already been deleted!"
+        )
+
+    autoresponse.enabled = ctx.options.bool or not autoresponse.enabled
+    await autoresponse.save()
+
+    await ctx.respond(
+        f"**Autoresponse** `{autoresponse.trigger}` has been **{'enabled' if autoresponse.enabled else 'disabled'}**."
+    )
+
+
 @autoresponse_plugin.listener(hikari.GuildMessageCreateEvent)
 async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
     if not event.is_human or not event.message.content:
