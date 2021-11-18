@@ -159,6 +159,7 @@ async def serverinfo(ctx: lightbulb.context.Context) -> None:
 
 
 @misc_plugin.command
+@lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
 @lightbulb.option(
     "remainder", "Text for the remainder", modifier=commands.OptionModifier.GREEDY
 )
