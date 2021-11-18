@@ -134,7 +134,7 @@ class TimeConverter(lightbulb.converters.BaseConverter):
         """Function that converts given time into seconds.
         Parameters
         ----------
-        ctx : tanjun.abc.Context
+        ctx : lightbulb.context.Context
             Context of the command invokation.
         argument : str
             Time to be converted
@@ -144,7 +144,7 @@ class TimeConverter(lightbulb.converters.BaseConverter):
             Time in seconds.
         Raises
         ------
-        tanjun.CommandError
+        TimeError
             When the values are wrong and when the input doesn't match the input regex.
         """
         args = argument.lower()
