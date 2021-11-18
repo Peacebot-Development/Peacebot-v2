@@ -6,9 +6,8 @@ from lightbulb import commands
 
 import peacebot.core.utils.helper_functions as hf
 from peacebot.core.utils.embed_colors import EmbedColors
-from peacebot.core.utils.time import TimeConverter
 
-from . import fetch_scheduler, send_remainder
+from . import convert_time, fetch_scheduler, send_remainder
 
 misc_plugin = lightbulb.Plugin("Misc", "Miscellaneous Commands for the Bot")
 
@@ -160,14 +159,19 @@ async def serverinfo(ctx: lightbulb.context.Context) -> None:
 
 
 @misc_plugin.command
-@lightbulb.option("remainder", "Text for the remainder")
+@lightbulb.option(
+    "remainder", "Text for the remainder", modifier=commands.OptionModifier.GREEDY
+)
 @lightbulb.option("time", "Time period for the remainder")
 @lightbulb.command("remind", "Create a remainder")
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
 async def remainder(ctx: lightbulb.context.Context) -> None:
-    remainder = ctx.options.remainder
+    if ctx.interaction is None:
+        remainder = " ".join(ctx.options.remainder)
+    else:
+        remainder = ctx.options.remainder
     time = ctx.options.time
-    time_seconds = await TimeConverter.convert(TimeConverter, ctx, time)
+    time_seconds = await convert_time(ctx, time)
     scheduler = fetch_scheduler(ctx)
     scheduler.add_job(
         send_remainder,
