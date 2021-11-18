@@ -166,6 +166,7 @@ async def serverinfo(ctx: lightbulb.context.Context) -> None:
 @lightbulb.option("time", "Time period for the remainder")
 @lightbulb.command("remind", "Create a remainder")
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
+@hf.error_handler()
 async def remainder(ctx: lightbulb.context.Context) -> None:
     if ctx.interaction is None:
         remainder = " ".join(ctx.options.remainder)
