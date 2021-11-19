@@ -10,7 +10,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.11"
-hikari-lightbulb = "2.0.0a7"
+hikari-lightbulb = "2.0.0a8"
 hikari-sake = { git = "https://github.com/FasterSpeeding/Sake", rev = "task/raw-dispatch" }
 pydantic = "^1.8.2"
 aerich = "0.5.3"
