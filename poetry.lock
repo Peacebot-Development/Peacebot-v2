@@ -271,7 +271,7 @@ speedups = ["aiodns (==3.0.0)", "cchardet (==2.1.7)", "Brotli (==1.0.9)", "ciso8
 
 [[package]]
 name = "hikari-lightbulb"
-version = "2.0.0a7"
+version = "2.0.1"
 description = "A simple to use command handler for Hikari"
 category = "main"
 optional = false
@@ -638,7 +638,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.11"
-content-hash = "dade17f975203a01d4a3b84dc31003f976db8e2e48522f211711099a42f3c394"
+content-hash = "849d57042e102e6eeb26f6a6e1ab917958ecfd2c66b38d579a440f29133b9284"
 
 [metadata.files]
 aerich = [
@@ -772,8 +772,8 @@ hikari = [
     {file = "hikari-2.0.0.dev103.tar.gz", hash = "sha256:710f3c8e79f94604f778d973cbe8c3a2e6c0a8873a237a143de539730d2006cf"},
 ]
 hikari-lightbulb = [
-    {file = "hikari-lightbulb-2.0.0a7.tar.gz", hash = "sha256:0b6f6081b0a5f0faf2d288c7372e73aa890fad93e8e2d531e13cb1512190b5b7"},
-    {file = "hikari_lightbulb-2.0.0a7-py3-none-any.whl", hash = "sha256:ff5a6d66a2a5f5a1f1fa429f8cf553b4ceaac32f4795546569229da9d6de786d"},
+    {file = "hikari-lightbulb-2.0.1.tar.gz", hash = "sha256:51f86b90613e3955d9f91e616c694b9f0b1d6f3ea231f0be897996bac03aa1ee"},
+    {file = "hikari_lightbulb-2.0.1-py3-none-any.whl", hash = "sha256:fa0ccaac800641849c79abe4409c705e88f6cae0c0ebfd5c8b8764e772e04c2a"},
 ]
 hikari-sake = []
 hikari-yuyo = [
