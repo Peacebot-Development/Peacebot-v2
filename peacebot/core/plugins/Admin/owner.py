@@ -15,8 +15,12 @@ import lightbulb
 import yuyo
 from lightbulb import commands
 
-eval_plugin = lightbulb.Plugin("Evals", "Run evals as bot owner in the guild")
-eval_plugin.add_checks(lightbulb.owner_only)
+import peacebot.core.utils.helper_functions as hf
+
+from . import CommandError, handle_plugins
+
+owner_plugin = lightbulb.Plugin("Owner", "Commands for bot owner")
+owner_plugin.add_checks(lightbulb.owner_only)
 
 
 def _yields_results(*args: io.StringIO) -> collections.Iterator[str]:
@@ -72,19 +76,20 @@ async def eval_python_code_no_capture(
         eval(compiled_code, globals_)
 
 
-@eval_plugin.command
+@owner_plugin.command
+@lightbulb.set_help(docstring=True)
 @lightbulb.command("eval", "Run Evals as Bot owner")
 @lightbulb.implements(commands.PrefixCommand)
+@hf.error_handler()
 async def eval_command(ctx: lightbulb.context.Context) -> None:
     """
     Dynamically evaluate a script in the bot's environment.
     This can only be used by the bot's owner.
 
     Example:
-    ;eval ```py
+    ;eval py
     for x in range(5):
         print('Hello World')
-    ```
     """
     assert ctx.event.message is not None
     code = re.findall(
@@ -129,9 +134,53 @@ async def eval_command(ctx: lightbulb.context.Context) -> None:
         return
 
 
+@owner_plugin.command
+@lightbulb.option("plugin", "Name of the plugin")
+@lightbulb.command("reload", "Reload a specific plugin.")
+@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
+@hf.error_handler()
+async def reload_plugin(ctx: lightbulb.context.Context) -> None:
+    plugin = ctx.options.plugin
+    await handle_plugins(ctx, plugin, "reload")
+
+
+@owner_plugin.command
+@lightbulb.option("plugin", "Name of the plugin")
+@lightbulb.command("unload", "Unload a specific plugin.")
+@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
+@hf.error_handler()
+async def unload_plugin(ctx: lightbulb.context.Context) -> None:
+    plugin = ctx.options.plugin
+    if plugin in [
+        "peacebot.core.plugins.Admin.admin",
+        "peacebot.core.plugins.Admin.owner",
+    ]:
+        raise CommandError(f"Cannot unload `{plugin}`")
+
+    await handle_plugins(ctx, plugin, "unload")
+
+
+@owner_plugin.command
+@lightbulb.option("plugin", "Name of the plugin")
+@lightbulb.command("load", "Load a specific plugin.")
+@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
+@hf.error_handler()
+async def load_plugin(ctx: lightbulb.context.Context) -> None:
+    plugin = ctx.options.plugin
+    await handle_plugins(ctx, plugin, "load")
+
+
+@owner_plugin.command
+@lightbulb.command("shutdown", "Shutdown the Bot")
+@lightbulb.implements(commands.PrefixCommand, commands.SlashCommand)
+async def shutdown(ctx: lightbulb.context.Context) -> None:
+    await ctx.respond("Bot is shutting down, Bye Bye!")
+    await ctx.bot.close()
+
+
 def load(bot: lightbulb.BotApp) -> None:
-    bot.add_plugin(eval_plugin)
+    bot.add_plugin(owner_plugin)
 
 
 def unload(bot: lightbulb.BotApp) -> None:
-    bot.remove_plugin(eval_plugin)
+    bot.remove_plugin(owner_plugin)
