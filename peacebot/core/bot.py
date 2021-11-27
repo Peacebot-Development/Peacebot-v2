@@ -4,11 +4,12 @@ import asyncio
 import logging
 from pathlib import Path
 
+import aioredis
 import hikari
 import lavasnek_rs
 import lightbulb
-import sake
 import yuyo
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from lightbulb.utils.data_store import DataStore
 from tortoise import Tortoise
 
@@ -16,6 +17,7 @@ from models import GuildModel
 from peacebot import bot_config, lavalink_config
 from peacebot.core.event_handler import EventHandler
 from peacebot.core.utils.activity import CustomActivity
+from peacebot.core.utils.embed_colors import EmbedColors
 from peacebot.core.utils.errors import on_error
 from tortoise_config import tortoise_config
 
@@ -43,7 +45,8 @@ class Peacebot(lightbulb.BotApp):
         self.d = DataStore(
             data=Data(),
             component_client=yuyo.ComponentClient.from_gateway_bot(self),
-            redis_cache=sake.RedisCache(self, self, address="redis://redis"),
+            redis=aioredis.from_url(url="redis://redis"),
+            scheduler=AsyncIOScheduler(),
         )
         self.custom_activity = CustomActivity(self)
 
@@ -61,6 +64,7 @@ class Peacebot(lightbulb.BotApp):
         self.event_manager.subscribe(hikari.StoppedEvent, self.on_stopped)
         self.event_manager.subscribe(lightbulb.CommandErrorEvent, on_error)
         self.event_manager.subscribe(hikari.ShardReadyEvent, self.on_shard_ready)
+        self.event_manager.subscribe(hikari.GuildMessageCreateEvent, self.on_message)
 
         super().run(asyncio_debug=True)
 
@@ -68,9 +72,6 @@ class Peacebot(lightbulb.BotApp):
         path = Path("./peacebot/core/plugins")
         for ext in path.glob(("**/") + "[!_]*.py"):
             self.load_extensions(".".join([*ext.parts[:-1], ext.stem]))
-        logger.info("Connecting to Redis Cache....")
-        await self.d.redis_cache.open()
-        logger.info("Connected to Redis Cache.")
         asyncio.create_task(self.connect_db())
 
     async def on_shard_ready(self, _: hikari.ShardReadyEvent) -> None:
@@ -87,17 +88,39 @@ class Peacebot(lightbulb.BotApp):
         self.d.data.lavalink = lava_client
 
     async def on_started(self, _: hikari.StartedEvent) -> None:
+        self.d.scheduler.start()
         asyncio.create_task(self.custom_activity.change_status())
-        logger.info("Bot has started.")
+        logger.info("Bot has started sucessfully.")
 
     async def on_stopping(self, _: hikari.StoppingEvent) -> None:
-        await self.d.component_client.close()
+        self.d.scheduler.shutdown()
+        logger.info("Bot is stopping...")
 
     async def on_stopped(self, _: hikari.StoppedEvent) -> None:
-        await self.d.redis_cache.close()
-        logger.info("Disconnected from Redis Cache.")
+        logger.info("Bot has stopped sucessfully.")
 
     async def connect_db(self) -> None:
         logger.info("Connecting to Database....")
         await Tortoise.init(tortoise_config)
         logger.info("Connected to DB sucessfully!")
+
+    async def on_message(self, event: hikari.GuildMessageCreateEvent) -> None:
+        if not event.is_human or not event.message.content:
+            return
+
+        if not f"<@!{self.get_me().id}>" == event.message.content.strip():
+            return
+        model = await GuildModel.get_or_none(id=event.guild_id)
+        prefix = model.prefix
+        response = f"""
+            Hi {event.author.mention}, My prefix here is {self.get_me().mention} or `{prefix}`
+            Slash Commands are also here. Type in / and then select command from the popup
+            You can view the help using `{prefix}help`
+            Thank you for using me.
+            """
+
+        await event.message.respond(
+            embed=hikari.Embed(description=response, color=EmbedColors.INFO).set_footer(
+                text=f"Cheers from the Peacebot Team."
+            )
+        )
