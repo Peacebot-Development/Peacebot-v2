@@ -10,17 +10,13 @@ version = "0.1.0"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.11"
-hikari-lightbulb = "2.0.0a7"
 pydantic = "^1.8.2"
 aerich = "0.5.3"
 asyncpg = "^0.24.0"
 hikari-lightbulb = "2.0.0a7"
 lavasnek-rs = "^0.1.0-alpha.1"
-pydantic = "^1.8.2"
-python = ">=3.9,<3.11"
 python-dotenv = "^0.19.2"
 tortoise-orm = "^0.17.8"
-lavasnek-rs = "^0.1.0-alpha.1"
 aioredis = "^2.0.0"
 hikari-yuyo = {git = "https://github.com/FasterSpeeding/Yuyo"}
 APScheduler = "^3.8.1"
