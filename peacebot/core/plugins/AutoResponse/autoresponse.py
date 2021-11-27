@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import time
 
 import hikari
 import lightbulb
@@ -177,11 +178,29 @@ async def autoresponse_info(ctx: context.Context):
             value=autoresponse.extra_text,
             inline=False,
         )
+        .add_field(name="Mentions:", value=autoresponse.mentions, inline=False)
+        .add_field(
+            name="Allowed Channel:",
+            value=autoresponse.allowed_channel or "Allowed in every channel",
+            inline=False,
+        )
+        .add_field(name="Enabled:", value=autoresponse.enabled, inline=False)
         .add_field(
             name="Created By:", value=f"<@{autoresponse.created_by}>", inline=False
         )
+        .add_field(
+            name="Created At:",
+            value=f"<t:{int(time.mktime(autoresponse.created_at.timetuple()))}:F>"
+            or "No Data",
+            inline=False,
+        )
+        .add_field(
+            name="Updated At:",
+            value=f"<t:{int(time.mktime(autoresponse.updated_at.timetuple()))}:F>"
+            or "No Data",
+            inline=False,
+        )
     )
-
     await ctx.respond(embed=embed)
 
 

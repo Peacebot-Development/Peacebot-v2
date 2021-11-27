@@ -4,7 +4,16 @@ from tortoise.models import Model
 from peacebot import bot_config
 
 
-class GuildModel(Model):
+class CustomModel(Model):
+    id = fields.IntField(pk=True)
+    created_at = fields.DatetimeField(null=True, auto_now_add=True)
+    updated_at = fields.DatetimeField(null=True, auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class GuildModel(CustomModel):
     """Defining a Guild Model to store prefix and id of the guild."""
 
     id = fields.BigIntField(pk=True, description="ID of the Guild")
@@ -21,7 +30,7 @@ class GuildModel(Model):
         table_description = "Stores information about the guild."
 
 
-class AutoResponseModel(Model):
+class AutoResponseModel(CustomModel):
     """Defining a Autoresponse Model to store autoresponses for each guild"""
 
     id = fields.UUIDField(pk=True)
