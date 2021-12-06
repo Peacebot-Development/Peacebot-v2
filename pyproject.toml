@@ -23,7 +23,7 @@ APScheduler = "^3.8.1"
 
 
 [tool.poetry.dev-dependencies]
-black = "^21.11b0"
+black = "^21.12b0"
 flake8 = "^4.0.1"
 isort = "^5.10.1"
 pre-commit = "^2.15.0"
