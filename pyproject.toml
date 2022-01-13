@@ -20,7 +20,8 @@ tortoise-orm = "^0.17.8"
 aioredis = "^2.0.0"
 hikari-yuyo = {git = "https://github.com/FasterSpeeding/Yuyo"}
 APScheduler = "^3.8.1"
-
+uvloop = "^0.16.0"
+aPRAW = "^0.6.9-alpha.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.11b0"

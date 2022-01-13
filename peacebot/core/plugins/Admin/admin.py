@@ -8,7 +8,7 @@ admin_plugin = lightbulb.Plugin(
     name="Admin", description="Admin commands for the server"
 )
 admin_plugin.add_checks(
-    lightbulb.has_guild_permissions(hikari.Permissions.ADMINISTRATOR)
+    lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD)
 )
 
 
