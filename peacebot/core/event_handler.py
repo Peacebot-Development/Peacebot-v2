@@ -25,7 +25,7 @@ class EventHandler:
         node = await lavalink.get_guild_node(event.guild_id)
 
         if node:
-            data = await node.get_data()
+            data = node.get_data()
             channel_id = data[event.guild_id]
             channel = self.bot.cache.get_guild_channel(channel_id)
 
