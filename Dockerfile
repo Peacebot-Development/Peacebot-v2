@@ -1,4 +1,4 @@
-FROM python:3.9-slim-buster
+FROM python:3.10-slim-buster
 
 
 # Creating workdir and copying the config and lock files for poetry
@@ -6,8 +6,12 @@ WORKDIR /code
 COPY poetry.lock pyproject.toml /code/
 
 # Installing the system dependencies
-RUN apt-get update && apt-get install git -y \
-    && pip install poetry 
+RUN apt-get update && apt-get install -y build-essential curl git \
+    && pip install poetry \
+    && curl https://sh.rustup.rs -sSf | bash -s -- -y
+
+# For rust
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Installing the python dependencies
 RUN poetry config virtualenvs.create false \
