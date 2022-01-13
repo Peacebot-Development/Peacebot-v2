@@ -8,3 +8,6 @@ __pycache__/
 # Tortoise Orm
 aerich.ini
 migrations/
+
+# Cache
+*.pickle
