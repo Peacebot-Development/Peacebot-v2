@@ -4,6 +4,8 @@ import hikari
 import lightbulb
 from lightbulb import commands, context
 
+from peacebot.core.utils.embed_colors import EmbedColors
+
 from . import RedditCacher
 
 nsfw_plugin = lightbulb.Plugin("NSFW")
@@ -28,7 +30,7 @@ async def send_random_post(ctx: context.Context, subreddit_name: str) -> None:
         hikari.Embed(
             title=post.title,
             url=post.url,
-            color=hikari.Color.from_rgb(255, 255, 255),
+            color=EmbedColors.GENERIC,
         )
         .set_image(post.url)
         .set_footer(f"Why so horni?")
