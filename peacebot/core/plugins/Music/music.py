@@ -71,7 +71,7 @@ async def play(ctx: lightbulb.context.Context) -> None:
         query = " ".join(ctx.options.query)
     else:
         query = ctx.options.query
-    con = await lavalink.get_guild_gateway_connection_info(ctx.guild_id)
+    con = lavalink.get_guild_gateway_connection_info(ctx.guild_id)
 
     if not con:
         await _join(ctx)
@@ -95,9 +95,9 @@ async def play(ctx: lightbulb.context.Context) -> None:
         if not node:
             pass
         else:
-            await node.set_data({ctx.guild_id: ctx.channel_id})
+            node.set_data({ctx.guild_id: ctx.channel_id})
     except lavasnek_rs.NoSessionPresent:
-        raise MusicError(f"Use {ctx.prefix}join to run this command.")
+        raise MusicError(f"Use `{ctx.prefix}`join to run this command.")
 
     embed = hikari.Embed(
         title="Tracks Added",
