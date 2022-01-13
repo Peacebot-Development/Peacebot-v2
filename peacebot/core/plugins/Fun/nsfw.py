@@ -47,7 +47,7 @@ async def nsfw_ass(ctx: context.Context) -> None:
 
 
 @nsfw_plugin.command()
-@lightbulb.command("boobs", "Get some juicy ass pics", auto_defer=True)
+@lightbulb.command("boobs", "Mommy milkers?", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
 @reddit_cacher.command("boobs")
 async def nsfw_boobs(ctx: context.Context) -> None:
@@ -55,7 +55,7 @@ async def nsfw_boobs(ctx: context.Context) -> None:
 
 
 @nsfw_plugin.command()
-@lightbulb.command("pussy", "Get some juicy ass pics", auto_defer=True)
+@lightbulb.command("pussy", "pussy cat, meow", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
 @reddit_cacher.command("pussy")
 async def nsfw_pussy(ctx: context.Context) -> None:
@@ -63,7 +63,7 @@ async def nsfw_pussy(ctx: context.Context) -> None:
 
 
 @nsfw_plugin.command()
-@lightbulb.command("hentai", "Get some juicy ass pics", auto_defer=True)
+@lightbulb.command("hentai", "no judging", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
 @reddit_cacher.command("hentai")
 async def nsfw_hentai(ctx: context.Context) -> None:
@@ -71,7 +71,7 @@ async def nsfw_hentai(ctx: context.Context) -> None:
 
 
 @nsfw_plugin.command()
-@lightbulb.command("cum", "Get some juicy ass pics", auto_defer=True)
+@lightbulb.command("cum", "fappacino", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
 @reddit_cacher.command("cumsluts")
 async def nsfw_cum(ctx: context.Context) -> None:
