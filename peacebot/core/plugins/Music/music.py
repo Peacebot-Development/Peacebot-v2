@@ -1,16 +1,50 @@
 import random
 from datetime import datetime
+from subprocess import call
 
 import hikari
 import lavasnek_rs
 import lightbulb
+from lightbulb.ext import neon
+from lightbulb.utils import nav
 
 from peacebot.core.utils.embed_colors import EmbedColors
-from peacebot.core.utils.utilities import _chunk, paginate
+from peacebot.core.utils.utilities import _chunk
 
 from . import URL_REGEX, MusicError, _join, _leave, check_voice_state, fetch_lavalink
 
 music_plugin = lightbulb.Plugin("Music")
+
+
+class NowPlayingButtons(neon.ComponentMenu):
+    @neon.button("Play/Pause", "play_pause", hikari.ButtonStyle.PRIMARY, emoji="⏯")
+    async def play_pause(self, button: neon.Button) -> None:
+        lavalink = fetch_lavalink(music_plugin.bot)
+        node = await lavalink.get_guild_node(self.context.guild_id)
+        if not node.is_paused:
+            await lavalink.pause(self.context.guild_id)
+            await self.inter.create_initial_response(
+                hikari.ResponseType.MESSAGE_CREATE,
+                content=f"⏸ Playback Paused.",
+                flags=hikari.MessageFlag.EPHEMERAL,
+            )
+        else:
+            await lavalink.resume(self.context.guild_id)
+            await self.inter.create_initial_response(
+                hikari.ResponseType.MESSAGE_CREATE,
+                content=f"▶️ Playback Resumed.",
+                flags=hikari.MessageFlag.EPHEMERAL,
+            )
+
+    @neon.button("Shuffle", "shuffle", hikari.ButtonStyle.PRIMARY, emoji="🔀")
+    async def shuffle_button(self, button: neon.Button) -> None:
+        await shuffle(self.context)
+        await queue(self.context)
+        await self.inter.create_initial_response(
+            hikari.ResponseType.MESSAGE_CREATE,
+            content=f"🔀 Shuffled.",
+            flags=hikari.MessageFlag.EPHEMERAL,
+        )
 
 
 @music_plugin.command
@@ -65,7 +99,7 @@ async def play(ctx: lightbulb.Context) -> None:
     query : str
         Name of the song or URL to the playlist.
     """
-    lavalink = fetch_lavalink(ctx)
+    lavalink = fetch_lavalink(ctx.bot)
     if ctx.interaction is None:
         query = " ".join(ctx.options.query)
     else:
@@ -104,7 +138,7 @@ async def play(ctx: lightbulb.Context) -> None:
         color=EmbedColors.INFO,
     )
 
-    await ctx.respond(embed=embed)
+    resp = await ctx.respond(embed=embed)
 
 
 @music_plugin.command
@@ -120,7 +154,7 @@ async def queue(ctx: lightbulb.Context) -> None:
     ----------
     None
     """
-    lavalink = fetch_lavalink(ctx)
+    lavalink = fetch_lavalink(ctx.bot)
     song_queue = []
     node = await lavalink.get_guild_node(ctx.guild_id)
     if not node or not node.queue:
@@ -139,9 +173,15 @@ async def queue(ctx: lightbulb.Context) -> None:
         )
     for index, track in enumerate(_chunk(song_queue[1:], 8)):
         string = """**Next Up**\n"""
-        temp = []
         for i in track:
-            string += f"""{counter}. {i}\n"""
+            amount = node.queue[counter].track.info.length
+            millis = int(amount)
+            l_seconds = (millis / 1000) % 60
+            l_seconds = int(l_seconds)
+            l_minutes = (millis / (1000 * 60)) % 60
+            l_minutes = int(l_minutes)
+            first_n = int(l_seconds / 10)
+            string += f"""{counter}.`{l_minutes}:{l_seconds if first_n !=0 else f'0{l_seconds}'}` {i}\n"""
 
             counter += 1
         embed = hikari.Embed(
@@ -153,15 +193,12 @@ async def queue(ctx: lightbulb.Context) -> None:
         embed.set_footer(text=f"Page {index+1}")
         embed.add_field(
             name="Now Playing",
-            value=f"[{node.now_playing.track.info.title}]({node.now_playing.track.info.uri}) [<@{node.now_playing.requester}>]",
+            value=f"[{node.now_playing.track.info.title}]({node.now_playing.track.info.uri}) [<@{node.now_playing.requester}>]",  # noqa: E501
         )
-        temp.append(hikari.UNDEFINED)
-        temp.append(embed)
-        fields.append(temp)
+        fields.append(embed)
 
-    iter_fields = iter(fields)
-
-    await paginate(ctx, iter_fields, 180)
+    navigator = nav.ButtonNavigator(iter(fields))
+    await navigator.run(ctx)
 
 
 @music_plugin.command
@@ -178,7 +215,7 @@ async def pause(ctx: lightbulb.Context) -> None:
     ----------
     None
     """
-    lavalink = fetch_lavalink(ctx)
+    lavalink = fetch_lavalink(ctx.bot)
     node = await lavalink.get_guild_node(ctx.guild_id)
     if not node or not node.now_playing:
         raise MusicError("There are no tracks playing currently!")
@@ -207,7 +244,7 @@ async def resume(ctx: lightbulb.Context) -> None:
     ----------
     None
     """
-    lavalink = fetch_lavalink(ctx)
+    lavalink = fetch_lavalink(ctx.bot)
     node = await lavalink.get_guild_node(ctx.guild_id)
 
     if not node or not node.now_playing:
@@ -237,7 +274,7 @@ async def shuffle(ctx: lightbulb.Context) -> None:
     ----------
     None
     """
-    lavalink = fetch_lavalink(ctx)
+    lavalink = fetch_lavalink(ctx.bot)
     node = await lavalink.get_guild_node(ctx.guild_id)
 
     if not len(node.queue) > 1:
@@ -250,7 +287,7 @@ async def shuffle(ctx: lightbulb.Context) -> None:
     node.queue = queue
     await lavalink.set_guild_node(ctx.guild_id, node)
 
-    await ctx.respond("🔀 Queue has been shuffled.")
+    await ctx.respond("🔀 Queue has been shuffled.", flags=hikari.MessageFlag.EPHEMERAL)
 
 
 @music_plugin.command
@@ -274,7 +311,7 @@ async def skip(ctx: lightbulb.Context) -> None:
     ----------
     None
     """
-    lavalink = fetch_lavalink(ctx)
+    lavalink = fetch_lavalink(ctx.bot)
     skip = await lavalink.skip(ctx.guild_id)
     node = await lavalink.get_guild_node(ctx.guild_id)
 
@@ -309,7 +346,7 @@ async def stop(ctx: lightbulb.Context) -> None:
     ----------
     None
     """
-    lavalink = fetch_lavalink(ctx)
+    lavalink = fetch_lavalink(ctx.bot)
     await lavalink.stop(ctx.guild_id)
 
     await ctx.respond("⏹️ Playback has been stopped.")
@@ -353,7 +390,7 @@ async def move(ctx: lightbulb.Context) -> None:
         new_index : int
             Index at which song is to be moved.
     """
-    lavalink = fetch_lavalink(ctx)
+    lavalink = fetch_lavalink(ctx.bot)
     new_index = int(ctx.options.new_index)
     old_index = int(ctx.options.old_index)
 
@@ -398,7 +435,7 @@ async def remove_song(ctx: lightbulb.Context) -> None:
     index : int
             Index of the song to be removed
     """
-    lavalink = fetch_lavalink(ctx)
+    lavalink = fetch_lavalink(ctx.bot)
     index = ctx.options.index
     node = await lavalink.get_guild_node(ctx.guild_id)
     if not node.queue:
@@ -430,7 +467,8 @@ async def remove_song(ctx: lightbulb.Context) -> None:
 @lightbulb.command("nowplaying", "See currently playing track's info", aliases=["np"])
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 async def nowplaying(ctx: lightbulb.Context) -> None:
-    lavalink = fetch_lavalink(ctx)
+    lavalink = fetch_lavalink(ctx.bot)
+    menu = NowPlayingButtons(ctx)
     node = await lavalink.get_guild_node(ctx.guild_id)
 
     if not node or not node.now_playing:
@@ -447,7 +485,8 @@ async def nowplaying(ctx: lightbulb.Context) -> None:
     ]
     for name, value, inline in fields:
         embed.add_field(name=name, value=value, inline=inline)
-    await ctx.respond(embed=embed)
+    resp = await ctx.respond(embed=embed, components=menu.build())
+    await menu.run(resp)
 
 
 def load(bot: lightbulb.BotApp) -> None:

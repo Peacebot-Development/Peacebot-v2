@@ -71,5 +71,5 @@ def check_voice_state(f):
     return predicate
 
 
-def fetch_lavalink(ctx: lightbulb.Context) -> lavasnek_rs.Lavalink:
-    return ctx.bot.d.data.lavalink
+def fetch_lavalink(bot: lightbulb.BotApp) -> lavasnek_rs.Lavalink:
+    return bot.d.data.lavalink
