@@ -4,7 +4,6 @@ from datetime import datetime
 import hikari
 import lavasnek_rs
 import lightbulb
-from lightbulb import commands
 
 from peacebot.core.utils.embed_colors import EmbedColors
 from peacebot.core.utils.utilities import _chunk, paginate
@@ -18,8 +17,8 @@ music_plugin = lightbulb.Plugin("Music")
 @lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
 @lightbulb.set_help(docstring=True)
 @lightbulb.command("join", "Join a voice channel of the guild")
-@lightbulb.implements(commands.PrefixCommand, commands.SlashCommand)
-async def join(ctx: lightbulb.context.Context) -> None:
+@lightbulb.implements(lightbulb.PrefixCommand, lightbulb.SlashCommand)
+async def join(ctx: lightbulb.Context) -> None:
     """
     This command allows the bot to join a voice channel in a server.
 
@@ -37,9 +36,9 @@ async def join(ctx: lightbulb.context.Context) -> None:
 # @lightbulb.set_help(docstring=True) # INFO: Potentially a Bug
 @lightbulb.add_cooldown(2, 1, lightbulb.UserBucket)
 @lightbulb.command("leave", "Leave the voice channel if already connected.")
-@lightbulb.implements(commands.PrefixCommand, commands.SlashCommand)
+@lightbulb.implements(lightbulb.PrefixCommand, lightbulb.SlashCommand)
 @check_voice_state
-async def leave(ctx: lightbulb.context.Context) -> None:
+async def leave(ctx: lightbulb.Context) -> None:
     """
     This command makes the bot leave voice channel of a server.
 
@@ -53,11 +52,11 @@ async def leave(ctx: lightbulb.context.Context) -> None:
 @music_plugin.command
 # @lightbulb.set_help(docstring=True) # INFO: Potentially a Bug
 @lightbulb.option(
-    "query", "Name or URL of the song", modifier=commands.OptionModifier.GREEDY
+    "query", "Name or URL of the song", modifier=lightbulb.OptionModifier.GREEDY
 )
 @lightbulb.command("play", "Play a song")
-@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-async def play(ctx: lightbulb.context.Context) -> None:
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def play(ctx: lightbulb.Context) -> None:
     """
     This command allows you to play songs in the voice channel.
 
@@ -112,8 +111,8 @@ async def play(ctx: lightbulb.context.Context) -> None:
 # @lightbulb.set_help(docstring=True) # INFO: Potentially a Bug
 @lightbulb.add_cooldown(2, 1, lightbulb.UserBucket)
 @lightbulb.command("queue", "Shows the music queue for the guild")
-@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-async def queue(ctx: lightbulb.context.Context) -> None:
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def queue(ctx: lightbulb.Context) -> None:
     """
     This command allows you to view the music queue for the server
 
@@ -169,9 +168,9 @@ async def queue(ctx: lightbulb.context.Context) -> None:
 # @lightbulb.set_help(docstring=True) # INFO: Potentially a Bug
 @lightbulb.add_cooldown(2, 1, lightbulb.UserBucket)
 @lightbulb.command("pause", "Pause the currently playing song.")
-@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 @check_voice_state
-async def pause(ctx: lightbulb.context.Context) -> None:
+async def pause(ctx: lightbulb.Context) -> None:
     """
     This command allows you to pause the currently playing song.
 
@@ -197,9 +196,9 @@ async def pause(ctx: lightbulb.context.Context) -> None:
 # @lightbulb.set_help(docstring=True) # INFO: Potentially a Bug
 @lightbulb.add_cooldown(2, 1, lightbulb.UserBucket)
 @lightbulb.command("resume", "Resume the paused track.")
-@lightbulb.implements(commands.PrefixCommand, commands.SlashCommand)
+@lightbulb.implements(lightbulb.PrefixCommand, lightbulb.SlashCommand)
 @check_voice_state
-async def resume(ctx: lightbulb.context.Context) -> None:
+async def resume(ctx: lightbulb.Context) -> None:
     """
     This command allows you to resume the paused song.
     If already resumed, it throws an error.
@@ -227,9 +226,9 @@ async def resume(ctx: lightbulb.context.Context) -> None:
 # @lightbulb.set_help(docstring=True) # INFO: Potentially a Bug
 @lightbulb.add_cooldown(2, 1, lightbulb.UserBucket)
 @lightbulb.command("shuffle", "Shuffle the current queue")
-@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 @check_voice_state
-async def shuffle(ctx: lightbulb.context.Context) -> None:
+async def shuffle(ctx: lightbulb.Context) -> None:
     """
     This command allows you to shuffle the queue in the server.
     Raises error there is only one track in the queue
@@ -264,9 +263,9 @@ async def shuffle(ctx: lightbulb.context.Context) -> None:
 #     | hikari.Permissions.VIEW_CHANNEL
 #     | hikari.Permissions.SEND_MESSAGES
 # )
-@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 @check_voice_state
-async def skip(ctx: lightbulb.context.Context) -> None:
+async def skip(ctx: lightbulb.Context) -> None:
     """
     This command allows you to skip the currently playing song.
     If there are no more tracks in the queue, it stops the playback.
@@ -298,9 +297,9 @@ async def skip(ctx: lightbulb.context.Context) -> None:
 # @lightbulb.set_help(docstring=True) # INFO: Potentially a Bug
 @lightbulb.add_cooldown(2, 1, lightbulb.UserBucket)
 @lightbulb.command("stop", "Stop the playback")
-@lightbulb.implements(commands.PrefixCommand, commands.SlashCommand)
+@lightbulb.implements(lightbulb.PrefixCommand, lightbulb.SlashCommand)
 @check_voice_state
-async def stop(ctx: lightbulb.context.Context) -> None:
+async def stop(ctx: lightbulb.Context) -> None:
     """
     This command allows you the stop the playback in the server.
 
@@ -320,8 +319,8 @@ async def stop(ctx: lightbulb.context.Context) -> None:
 # @lightbulb.set_help(docstring=True) # INFO: Potentially a Bug
 @lightbulb.add_cooldown(2, 1, lightbulb.UserBucket)
 @lightbulb.command("song", "Commands for songs")
-@lightbulb.implements(commands.SlashCommandGroup, commands.PrefixCommandGroup)
-async def song(ctx: lightbulb.context.Context) -> None:
+@lightbulb.implements(lightbulb.SlashCommandGroup, lightbulb.PrefixCommandGroup)
+async def song(ctx: lightbulb.Context) -> None:
     """
     Command group that deals with moving and removing songs from the queue.
 
@@ -340,9 +339,9 @@ async def song(ctx: lightbulb.context.Context) -> None:
 )
 @lightbulb.option(name="old_index", description="Song to move", type=int)
 @lightbulb.command("move", "Move song to specific index in the queue")
-@lightbulb.implements(commands.PrefixSubCommand, commands.SlashSubCommand)
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 @check_voice_state
-async def move(ctx: lightbulb.context.Context) -> None:
+async def move(ctx: lightbulb.Context) -> None:
     """
     This command allows you to move a song to a new index.
 
@@ -388,9 +387,9 @@ async def move(ctx: lightbulb.context.Context) -> None:
 # @lightbulb.set_help(docstring=True) # INFO: Potentially a Bug
 @lightbulb.option("index", "Index of song to be removed", type=int)
 @lightbulb.command("remove", "Remove a song from the queue")
-@lightbulb.implements(commands.SlashSubCommand, commands.PrefixSubCommand)
+@lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
 @check_voice_state
-async def remove_song(ctx: lightbulb.context.Context) -> None:
+async def remove_song(ctx: lightbulb.Context) -> None:
     """
     This command allows you to remove a specific song from the queue.
 
@@ -429,8 +428,8 @@ async def remove_song(ctx: lightbulb.context.Context) -> None:
 
 @music_plugin.command
 @lightbulb.command("nowplaying", "See currently playing track's info", aliases=["np"])
-@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-async def nowplaying(ctx: lightbulb.context.Context) -> None:
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def nowplaying(ctx: lightbulb.Context) -> None:
     lavalink = fetch_lavalink(ctx)
     node = await lavalink.get_guild_node(ctx.guild_id)
 
