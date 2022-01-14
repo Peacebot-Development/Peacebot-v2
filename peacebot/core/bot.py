@@ -8,7 +8,6 @@ import aioredis
 import hikari
 import lavasnek_rs
 import lightbulb
-import yuyo
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from lightbulb.utils.data_store import DataStore
 from tortoise import Tortoise
@@ -41,10 +40,17 @@ class Peacebot(lightbulb.BotApp):
             prefix=lightbulb.when_mentioned_or(self.determine_prefix),
             default_enabled_guilds=bot_config.test_guilds,
             intents=hikari.Intents.ALL,
+            logs={
+                "version": 1,
+                "incremental": True,
+                "loggers": {
+                    "hikari": {"level": "INFO"},
+                    "lightbulb": {"level": "DEBUG"},
+                },
+            },
         )
         self.d = DataStore(
             data=Data(),
-            component_client=yuyo.ComponentClient.from_gateway_bot(self),
             redis=aioredis.from_url(url="redis://redis"),
             scheduler=AsyncIOScheduler(),
         )
