@@ -1,6 +1,6 @@
 [[package]]
 name = "aerich"
-version = "0.5.3"
+version = "0.6.1"
 description = "A database migrations tool for Tortoise ORM."
 category = "main"
 optional = false
@@ -10,11 +10,11 @@ python-versions = ">=3.7,<4.0"
 click = "*"
 ddlparse = "*"
 dictdiffer = "*"
-pydantic = "*"
-tortoise-orm = "*"
+tomlkit = "*"
+tortoise-orm = ">=0.17.7,<0.18.0"
 
 [package.extras]
-aiomysql = ["aiomysql"]
+asyncmy = ["asyncmy"]
 asyncpg = ["asyncpg"]
 
 [[package]]
@@ -692,6 +692,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "tomlkit"
+version = "0.8.0"
+description = "Style preserving TOML library"
+category = "main"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[[package]]
 name = "tortoise-orm"
 version = "0.17.8"
 description = "Easy async ORM for python, built with relations in mind"
@@ -818,12 +826,12 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.11"
-content-hash = "06e554d05480903720cb2c11f211267f0d801236398a5588a805ad0ff6148d1f"
+content-hash = "197d0447418a514c6d4f720889a55328fa9a0b58f53079c73b2e0dc0ada48471"
 
 [metadata.files]
 aerich = [
-    {file = "aerich-0.5.3-py3-none-any.whl", hash = "sha256:0338d06abe4cb9475a63b2193c37cb140d284adeb0fc7bb0cc73c44735443f70"},
-    {file = "aerich-0.5.3.tar.gz", hash = "sha256:30a1b3e34f690479c9b78cf39baebab840907d58c6614fe1929b99192c7748f4"},
+    {file = "aerich-0.6.1-py3-none-any.whl", hash = "sha256:bf8c79079b3c11921b313173658e68295f000fd8a8c48b2ead549a1111a1cbd4"},
+    {file = "aerich-0.6.1.tar.gz", hash = "sha256:90d1bfce48167e7acf6b4f5e94cb83fa9c2d39e13d63dfa94fae56cd62e97ba5"},
 ]
 aiofiles = [
     {file = "aiofiles-0.6.0-py3-none-any.whl", hash = "sha256:bd3019af67f83b739f8e4053c6c0512a7f545b9a8d91aaeab55e6e0f9d123c27"},
@@ -1326,6 +1334,10 @@ toml = [
 tomli = [
     {file = "tomli-1.2.3-py3-none-any.whl", hash = "sha256:e3069e4be3ead9668e21cb9b074cd948f7b3113fd9c8bba083f48247aab8b11c"},
     {file = "tomli-1.2.3.tar.gz", hash = "sha256:05b6166bff487dc068d322585c7ea4ef78deed501cc124060e0f238e89a9231f"},
+]
+tomlkit = [
+    {file = "tomlkit-0.8.0-py3-none-any.whl", hash = "sha256:b824e3466f1d475b2b5f1c392954c6cb7ea04d64354ff7300dc7c14257dc85db"},
+    {file = "tomlkit-0.8.0.tar.gz", hash = "sha256:29e84a855712dfe0e88a48f6d05c21118dbafb283bb2eed614d46f80deb8e9a1"},
 ]
 tortoise-orm = [
     {file = "tortoise-orm-0.17.8.tar.gz", hash = "sha256:1f5020e9964d32a4d6ed685d466b5d7285de328a63ee92ee988c1e4baf8fefbf"},
