@@ -10,9 +10,7 @@ class CommandError(lightbulb.LightbulbError):
     pass
 
 
-async def handle_plugins(
-    ctx: lightbulb.context.Context, plugin_str: str, action: str
-) -> None:
+async def handle_plugins(ctx: lightbulb.Context, plugin_str: str, action: str) -> None:
     try:
         getattr(ctx.bot, f"{action}_extensions")(plugin_str)
         logging.info(f"Plugin `{plugin_str}` has been {action}ed.")
