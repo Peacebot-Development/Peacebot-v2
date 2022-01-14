@@ -1,6 +1,5 @@
 import hikari
 import lightbulb
-from lightbulb import commands
 
 from models import GuildModel
 
@@ -15,8 +14,8 @@ admin_plugin.add_checks(
 @admin_plugin.command
 @lightbulb.option("prefix", "Custom prefix for the server.")
 @lightbulb.command("changeprefix", "Change the prefix for the server.", aliases=["chp"])
-@lightbulb.implements(commands.PrefixCommand, commands.SlashCommand)
-async def changeprefix(ctx: lightbulb.context.Context) -> None:
+@lightbulb.implements(lightbulb.PrefixCommand, lightbulb.SlashCommand)
+async def changeprefix(ctx: lightbulb.Context) -> None:
     prefix = ctx.options.prefix
     model = await GuildModel.get_or_none(id=ctx.guild_id)
     model.prefix = prefix

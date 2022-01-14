@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 
 import hikari
 import lightbulb
-from lightbulb import commands
 
 import peacebot.core.utils.helper_functions as hf
 from peacebot.core.utils.embed_colors import EmbedColors
@@ -16,9 +15,9 @@ misc_plugin = lightbulb.Plugin("Misc", "Miscellaneous Commands for the Bot")
 @lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
 @lightbulb.option("member", "Get member", type=hikari.Member, required=False)
 @lightbulb.command("avatar", "View a member's avatar", aliases=["av"])
-@lightbulb.implements(commands.PrefixCommand, commands.SlashCommand)
+@lightbulb.implements(lightbulb.PrefixCommand, lightbulb.SlashCommand)
 @hf.error_handler()
-async def avatar(ctx: lightbulb.context.Context) -> None:
+async def avatar(ctx: lightbulb.Context) -> None:
     member: hikari.Member = ctx.options.member or ctx.member
 
     embed = (
@@ -38,9 +37,9 @@ async def avatar(ctx: lightbulb.context.Context) -> None:
 @lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
 @lightbulb.option("member", "Get member", type=hikari.Member, required=False)
 @lightbulb.command("userinfo", "Get info of a user in a guild")
-@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 @hf.error_handler()
-async def userinfo(ctx: lightbulb.context.Context) -> None:
+async def userinfo(ctx: lightbulb.Context) -> None:
     guild = ctx.get_guild()
     member: hikari.Member = ctx.options.member or ctx.member
 
@@ -105,9 +104,9 @@ async def userinfo(ctx: lightbulb.context.Context) -> None:
 @misc_plugin.command
 @lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
 @lightbulb.command("serverinfo", "View info of the server")
-@lightbulb.implements(commands.PrefixCommand, commands.SlashCommand)
+@lightbulb.implements(lightbulb.PrefixCommand, lightbulb.SlashCommand)
 @hf.error_handler()
-async def serverinfo(ctx: lightbulb.context.Context) -> None:
+async def serverinfo(ctx: lightbulb.Context) -> None:
     guild = ctx.get_guild()
     members_mapping = guild.get_members()
     members = [member for member in members_mapping.values() if not member.is_bot]
@@ -161,13 +160,13 @@ async def serverinfo(ctx: lightbulb.context.Context) -> None:
 @misc_plugin.command
 @lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
 @lightbulb.option(
-    "remainder", "Text for the remainder", modifier=commands.OptionModifier.GREEDY
+    "remainder", "Text for the remainder", modifier=lightbulb.OptionModifier.GREEDY
 )
 @lightbulb.option("time", "Time period for the remainder")
 @lightbulb.command("remind", "Create a remainder")
-@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 @hf.error_handler()
-async def remainder(ctx: lightbulb.context.Context) -> None:
+async def remainder(ctx: lightbulb.Context) -> None:
     if ctx.interaction is None:
         remainder = " ".join(ctx.options.remainder)
     else:
