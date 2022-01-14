@@ -5,7 +5,6 @@ import time
 
 import hikari
 import lightbulb
-from lightbulb import commands, context
 
 import peacebot.core.utils.helper_functions as hf
 from models import AutoResponseModel, GuildModel
@@ -35,15 +34,15 @@ logger = logging.getLogger(__name__)
     "Configure autoresponses for the current server",
     aliases=("ar", "autorsp"),
 )
-@lightbulb.implements(commands.PrefixCommandGroup, commands.SlashCommandGroup)
-async def autoresponse(ctx: context.Context) -> None:
+@lightbulb.implements(lightbulb.PrefixCommandGroup, lightbulb.SlashCommandGroup)
+async def autoresponse(ctx: lightbulb.Context) -> None:
     await ctx.bot.help_command.send_group_help(ctx, ctx.command)
 
 
 @autoresponse.child
 @lightbulb.command("list", "Get the list of all the autoresponses in the server")
-@lightbulb.implements(commands.PrefixSubCommand, commands.SlashSubCommand)
-async def autoresponse_list(ctx: context.Context) -> None:
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+async def autoresponse_list(ctx: lightbulb.Context) -> None:
     autoresponses = await AutoResponseModel.filter(guild__id=ctx.guild_id)
     enabled_autoresponses = [
         f"`{autoresponse.trigger}`"
@@ -103,8 +102,8 @@ async def autoresponse_list(ctx: context.Context) -> None:
 @lightbulb.option("trigger", "The trigger which will trigger the autoresponse")
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD))
 @lightbulb.command("add", "Add a new autoresponse to the server")
-@lightbulb.implements(commands.PrefixSubCommand, commands.SlashSubCommand)
-async def autoresponse_add(ctx: context.Context) -> None:
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+async def autoresponse_add(ctx: lightbulb.Context) -> None:
     if await AutoResponseModel.exists(
         guild__id=ctx.guild_id, trigger__iexact=ctx.options.trigger
     ):
@@ -136,8 +135,8 @@ async def autoresponse_add(ctx: context.Context) -> None:
     "Removes the provided autoresponse from the server",
     aliases=("del", "delete"),
 )
-@lightbulb.implements(commands.PrefixSubCommand, commands.SlashSubCommand)
-async def autoresponse_remove(ctx: context.Context) -> None:
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+async def autoresponse_remove(ctx: lightbulb.Context) -> None:
     trigger: str = ctx.options.trigger
     autoresponse_model = await AutoResponseModel.get_or_none(
         guild__id=ctx.guild_id, trigger__iexact=trigger
@@ -154,8 +153,8 @@ async def autoresponse_remove(ctx: context.Context) -> None:
 @autoresponse.child
 @lightbulb.option("trigger", "Trigger of the autoresponse to get info on")
 @lightbulb.command("info", "Get the info of the autoresponse")
-@lightbulb.implements(commands.PrefixSubCommand, commands.SlashSubCommand)
-async def autoresponse_info(ctx: context.Context):
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+async def autoresponse_info(ctx: lightbulb.Context):
     autoresponse = await AutoResponseModel.get_or_none(
         guild__id=ctx.guild_id, trigger=ctx.options.trigger.lower()
     )
@@ -210,8 +209,8 @@ async def autoresponse_info(ctx: context.Context):
 )
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD))
 @lightbulb.command("export", "Export autoresponse(s) to another server")
-@lightbulb.implements(commands.PrefixSubCommand, commands.SlashSubCommand)
-async def autoresponse_export(ctx: context.Context) -> None:
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+async def autoresponse_export(ctx: lightbulb.Context) -> None:
     if not ctx.options.trigger:
         return await ctx.respond(
             f"You can import all the **autoresponses in this guild** using this id: ```{ctx.guild_id}```"
@@ -234,9 +233,9 @@ async def autoresponse_export(ctx: context.Context) -> None:
 @lightbulb.option("id", "Id of the autoresponse(s)", str)
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD))
 @lightbulb.command("import", "Import autoreponse(s) from another server")
-@lightbulb.implements(commands.PrefixSubCommand, commands.SlashSubCommand)
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 @hf.error_handler()
-async def autoresponse_import(ctx: context.Context) -> None:
+async def autoresponse_import(ctx: lightbulb.Context) -> None:
     _id: str = ctx.options.id
     if _id == str(ctx.guild_id):
         raise AutoResponseError(
@@ -291,9 +290,9 @@ async def autoresponse_import(ctx: context.Context) -> None:
 @lightbulb.option("trigger", "Trigger of the autoresponse to toggle")
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD))
 @lightbulb.command("toggle", "Enable or disable the autoresponse", aliases=["tgl"])
-@lightbulb.implements(commands.PrefixSubCommand, commands.SlashSubCommand)
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 @hf.error_handler()
-async def autoresponse_toggle(ctx: context.Context) -> None:
+async def autoresponse_toggle(ctx: lightbulb.Context) -> None:
     autoresponse = await AutoResponseModel.get_or_none(
         guild__id=ctx.guild_id, trigger__iexact=ctx.options.trigger
     )
