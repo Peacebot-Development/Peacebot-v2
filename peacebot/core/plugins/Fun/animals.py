@@ -1,7 +1,6 @@
 import aiohttp
 import hikari
 import lightbulb
-from lightbulb import commands
 
 from peacebot.core.utils.buttons import create_source_button
 
@@ -18,8 +17,8 @@ animals_plugin.add_checks(
 @animals_plugin.command
 @lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
 @lightbulb.command("dog", "Get a picture of a dog.")
-@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-async def dog(ctx: lightbulb.context.Context) -> None:
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def dog(ctx: lightbulb.Context) -> None:
     async with aiohttp.ClientSession() as session:
         async with session.get("https://dog.ceo/api/breeds/image/random") as resp:
             data = await resp.json()
@@ -38,8 +37,8 @@ async def dog(ctx: lightbulb.context.Context) -> None:
 @animals_plugin.command
 @lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
 @lightbulb.command("fox", "Get a picture of a fox")
-@lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-async def cat(ctx: lightbulb.context.Context) -> None:
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def cat(ctx: lightbulb.Context) -> None:
     async with aiohttp.ClientSession() as session:
         async with session.get("https://randomfox.ca/floof/") as r:
             data = await r.json()
