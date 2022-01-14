@@ -23,6 +23,7 @@ APScheduler = "^3.8.1"
 uvloop = "^0.16.0"
 aiofiles = "0.6.0"
 asyncpraw = "^7.5.0"
+lightbulb-ext-neon = {git = "https://github.com/neonjonn/lightbulb-ext-neon"}
 
 [tool.poetry.dev-dependencies]
 black = "^21.11b0"

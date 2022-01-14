@@ -486,6 +486,24 @@ reference = "master"
 resolved_reference = "2e555857a1a40dac7bad0e2c1bbdb5aa45dd432b"
 
 [[package]]
+name = "lightbulb-ext-neon"
+version = "0.1.0"
+description = "An add-on for Lightbulb making it easier to handle component interactions"
+category = "main"
+optional = false
+python-versions = ">=3.8.0,<3.11"
+develop = false
+
+[package.dependencies]
+hikari-lightbulb = ">=2.1.0,<2.2.0"
+
+[package.source]
+type = "git"
+url = "https://github.com/neonjonn/lightbulb-ext-neon"
+reference = "master"
+resolved_reference = "119eb9aa015488f47764316af16e7cf1eed72a15"
+
+[[package]]
 name = "mccabe"
 version = "0.6.1"
 description = "McCabe checker, plugin for flake8"
@@ -818,7 +836,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.11"
-content-hash = "06e554d05480903720cb2c11f211267f0d801236398a5588a805ad0ff6148d1f"
+content-hash = "bfc09278ae4bb1a95149ab589a7edb338239af4e938b6a90c6ac0285586fc441"
 
 [metadata.files]
 aerich = [
@@ -1110,6 +1128,7 @@ isort = [
     {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
 ]
 lavasnek-rs = []
+lightbulb-ext-neon = []
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
