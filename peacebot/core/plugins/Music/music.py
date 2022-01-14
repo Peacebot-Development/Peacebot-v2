@@ -1,6 +1,5 @@
 import random
 from datetime import datetime
-from subprocess import call
 
 import hikari
 import lavasnek_rs
