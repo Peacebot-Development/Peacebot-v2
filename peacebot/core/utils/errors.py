@@ -18,7 +18,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
     if isinstance(error, lightbulb.BotMissingRequiredPermission):
         missing = [
             perm.replace("_", " ").replace("guild", "server").title()
-            for perm in error.missing_perms
+            for perm in str(error.missing_perms).split("|")
         ]
         if len(missing) > 2:
             fmt = "{}, and {}".format("**, **".join(missing[:-1]), missing[-1])
@@ -50,7 +50,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
     if isinstance(error, lightbulb.MissingRequiredPermission):
         missing = [
             perm.replace("_", " ").replace("guild", "server").title()
-            for perm in error.missing_perms
+            for perm in str(error.missing_perms).split("|")
         ]
         if len(missing) > 2:
             fmt = "{}, and {}".format("**, **".join(missing[:-1]), missing[-1])

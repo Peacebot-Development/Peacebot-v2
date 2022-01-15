@@ -1,4 +1,3 @@
-import hikari
 import lightbulb
 from hikari import ButtonStyle
 from hikari.api.special_endpoints import ActionRowBuilder

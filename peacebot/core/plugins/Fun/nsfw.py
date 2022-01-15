@@ -2,7 +2,7 @@ import logging
 
 import hikari
 import lightbulb
-from lightbulb import commands, context
+from lightbulb import commands
 
 from peacebot.core.utils.embed_colors import EmbedColors
 
@@ -17,7 +17,7 @@ nsfw_plugin.add_checks(
 )
 
 
-async def send_random_post(ctx: context.Context, subreddit_name: str) -> None:
+async def send_random_post(ctx: lightbulb.Context, subreddit_name: str) -> None:
     post = await ctx.bot.d.reddit_cacher.get_random_post(subreddit_name)
     if not post:
         raise lightbulb.LightbulbError("Internal Error Occured, please report!")
@@ -37,35 +37,35 @@ async def send_random_post(ctx: context.Context, subreddit_name: str) -> None:
 @nsfw_plugin.command()
 @lightbulb.command("ass", "Get some juicy ass pics", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-async def nsfw_ass(ctx: context.Context) -> None:
+async def nsfw_ass(ctx: lightbulb.Context) -> None:
     await send_random_post(ctx, "ass")
 
 
 @nsfw_plugin.command()
 @lightbulb.command("boobs", "Mommy milkers?", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-async def nsfw_boobs(ctx: context.Context) -> None:
+async def nsfw_boobs(ctx: lightbulb.Context) -> None:
     await send_random_post(ctx, "boobs")
 
 
 @nsfw_plugin.command()
 @lightbulb.command("pussy", "pussy cat, meow", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-async def nsfw_pussy(ctx: context.Context) -> None:
+async def nsfw_pussy(ctx: lightbulb.Context) -> None:
     await send_random_post(ctx, "pussy")
 
 
 @nsfw_plugin.command()
 @lightbulb.command("hentai", "no judging", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-async def nsfw_hentai(ctx: context.Context) -> None:
+async def nsfw_hentai(ctx: lightbulb.Context) -> None:
     await send_random_post(ctx, "hentai")
 
 
 @nsfw_plugin.command()
 @lightbulb.command("cum", "fappacino", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-async def nsfw_cum(ctx: context.Context) -> None:
+async def nsfw_cum(ctx: lightbulb.Context) -> None:
     await send_random_post(ctx, "cumsluts")
 
 

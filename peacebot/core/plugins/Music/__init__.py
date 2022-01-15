@@ -12,7 +12,7 @@ class MusicError(lightbulb.LightbulbError):
     pass
 
 
-async def _join(ctx: lightbulb.context.Context) -> int:
+async def _join(ctx: lightbulb.Context) -> int:
     if ctx.bot.cache.get_voice_state(ctx.get_guild(), ctx.bot.get_me()):
         raise MusicError("I am already connected to another Voice Channel.")
     states = ctx.bot.cache.get_voice_states_view_for_guild(ctx.get_guild())
@@ -33,7 +33,7 @@ async def _join(ctx: lightbulb.context.Context) -> int:
     return channel_id
 
 
-async def _leave(ctx: lightbulb.context.Context):
+async def _leave(ctx: lightbulb.Context):
     await ctx.bot.d.data.lavalink.destroy(ctx.guild_id)
     await ctx.bot.d.data.lavalink.stop(ctx.guild_id)
     await ctx.bot.d.data.lavalink.leave(ctx.guild_id)
@@ -44,7 +44,7 @@ async def _leave(ctx: lightbulb.context.Context):
 
 
 def check_voice_state(f):
-    async def predicate(ctx: lightbulb.context.Context, *args, **kwargs):
+    async def predicate(ctx: lightbulb.Context, *args, **kwargs):
         guild = ctx.get_guild()
         bot_user = ctx.bot.get_me()
 
@@ -71,5 +71,5 @@ def check_voice_state(f):
     return predicate
 
 
-def fetch_lavalink(ctx: lightbulb.context.Context) -> lavasnek_rs.Lavalink:
-    return ctx.bot.d.data.lavalink
+def fetch_lavalink(bot: lightbulb.BotApp) -> lavasnek_rs.Lavalink:
+    return bot.d.data.lavalink
