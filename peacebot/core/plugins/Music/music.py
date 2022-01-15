@@ -104,40 +104,48 @@ async def play(ctx: lightbulb.Context) -> None:
     else:
         query = ctx.options.query
     con = lavalink.get_guild_gateway_connection_info(ctx.guild_id)
-
     if not con:
         await _join(ctx)
 
     query_information = await lavalink.auto_search_tracks(query)
-    if not query_information.tracks:
-        raise MusicError("No songs found according to the query.")
+    playlist = False
+    if query_information.playlist_info.name:
+        playlist = True
 
-    try:
-        if not URL_REGEX.match(query):
-            await lavalink.play(ctx.guild_id, query_information.tracks[0]).requester(
-                ctx.author.id
-            ).queue()
-        else:
+    if not query_information.tracks:
+        raise MusicError("No matching video to the given query!")
+
+    if playlist:
+        try:
             for track in query_information.tracks:
                 await lavalink.play(ctx.guild_id, track).requester(
                     ctx.author.id
                 ).queue()
+        except lavasnek_rs.NoSessionPresent:
+            raise MusicError("I am not connected to any voice channel")
 
-        node: lavasnek_rs.Node = await lavalink.get_guild_node(ctx.guild_id)
-        if not node:
-            pass
-        else:
-            node.set_data({ctx.guild_id: ctx.channel_id})
-    except lavasnek_rs.NoSessionPresent:
-        raise MusicError(f"Use `{ctx.prefix}`join to run this command.")
+        await ctx.respond(
+            embed=hikari.Embed(
+                title="Playlist Added",
+                description=f"{query_information.playlist_info.name}({len(query_information.tracks)} tracks added to queue [{ctx.author.mention}])",
+                color=EmbedColors.INFO,
+            )
+        )
+    else:
+        try:
+            await lavalink.play(ctx.guild_id, query_information.tracks[0]).requester(
+                ctx.author.id
+            ).queue()
+        except lavasnek_rs.NoSessionPresent:
+            raise MusicError("I am not connected to any voice channel")
 
-    embed = hikari.Embed(
-        title="Tracks Added",
-        description=f"[{query_information.tracks[0].info.title}]({query_information.tracks[0].info.uri})",
-        color=EmbedColors.INFO,
-    )
-
-    resp = await ctx.respond(embed=embed)
+        await ctx.respond(
+            embed=hikari.Embed(
+                title="Track Added",
+                description=f"[{query_information.tracks[0].info.title}]({query_information.tracks[0].info.uri}) added to the queue [{ctx.author.mention}]",
+                color=EmbedColors.INFO,
+            )
+        )
 
 
 @music_plugin.command
