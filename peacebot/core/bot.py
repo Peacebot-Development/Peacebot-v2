@@ -40,20 +40,13 @@ class Peacebot(lightbulb.BotApp):
             prefix=lightbulb.when_mentioned_or(self.determine_prefix),
             default_enabled_guilds=bot_config.test_guilds,
             intents=hikari.Intents.ALL,
-            logs={
-                "version": 1,
-                "incremental": True,
-                "loggers": {
-                    "hikari": {"level": "INFO"},
-                    "lightbulb": {"level": "DEBUG"},
-                },
-            },
+            banner="peacebot.assets",
         )
         self.d = DataStore(
             data=Data(),
             redis=aioredis.from_url(url="redis://redis"),
-            scheduler=AsyncIOScheduler(),
         )
+        self.scheduler = AsyncIOScheduler()
         self.custom_activity = CustomActivity(self)
 
     async def determine_prefix(self, _, message: hikari.Message) -> str:
@@ -75,9 +68,7 @@ class Peacebot(lightbulb.BotApp):
         super().run(asyncio_debug=True)
 
     async def on_starting(self, _: hikari.StartingEvent) -> None:
-        path = Path("./peacebot/core/plugins")
-        for ext in path.glob(("**/") + "[!_]*.py"):
-            self.load_extensions(".".join([*ext.parts[:-1], ext.stem]))
+        self.load_extensions_from("./peacebot/core/plugins", recursive=True)
         asyncio.create_task(self.connect_db())
 
     async def on_shard_ready(self, _: hikari.ShardReadyEvent) -> None:
@@ -94,12 +85,12 @@ class Peacebot(lightbulb.BotApp):
         self.d.data.lavalink = lava_client
 
     async def on_started(self, _: hikari.StartedEvent) -> None:
-        self.d.scheduler.start()
+        self.scheduler.start()
         asyncio.create_task(self.custom_activity.change_status())
         logger.info("Bot has started sucessfully.")
 
     async def on_stopping(self, _: hikari.StoppingEvent) -> None:
-        self.d.scheduler.shutdown()
+        self.scheduler.shutdown()
         logger.info("Bot is stopping...")
 
     async def on_stopped(self, _: hikari.StoppedEvent) -> None:
