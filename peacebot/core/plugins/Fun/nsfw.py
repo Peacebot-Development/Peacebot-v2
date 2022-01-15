@@ -17,7 +17,7 @@ nsfw_plugin.add_checks(
     ),
     lightbulb.nsfw_channel_only,
 )
-reddit_cacher = RedditCacher("peacebot/cache/reddit.pickle")
+reddit_cacher = RedditCacher("peacebot/cache/reddit.pickle", 1000)
 
 
 async def send_random_post(ctx: context.Context, subreddit_name: str) -> None:

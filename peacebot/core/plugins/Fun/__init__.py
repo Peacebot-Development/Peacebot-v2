@@ -21,12 +21,14 @@ class RedditCacher:
     def __init__(
         self,
         cache_file_path: str,
-        subreddits: list[str] | None = None,
+        cached_posts_count: int | None = 100,
+        subreddits: set[str] | None = None,
         cache_refresh_time: int | None = 60 * 60 * 6,
     ) -> None:
         self._cache_file_path = cache_file_path
-        self._subreddits = subreddits or list()
+        self._subreddits = subreddits or set()
         self._cache_refresh_time = cache_refresh_time
+        self._cached_posts_count = cached_posts_count
         self._reddit = Reddit(
             client_id=reddit_config.client_id,
             client_secret=reddit_config.client_secret,
@@ -49,7 +51,7 @@ class RedditCacher:
                         await f.write(pickle.dumps(cache))
 
                     setattr(func, "__is_cached__", True)
-                    self._subreddits.append(subreddit_name)
+                    self._subreddits.add(subreddit_name)
 
                 return await func(ctx)
 
@@ -93,7 +95,7 @@ class RedditCacher:
                 "title": post.title,
                 "permalink": post.permalink,
             }
-            async for post in subreddit.hot(limit=50)
+            async for post in subreddit.hot(limit=self._cached_posts_count)
         ]
 
         allowed_extensions = (".gif", ".png", ".jpg", ".jpeg")
