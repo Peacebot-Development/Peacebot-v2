@@ -10,11 +10,14 @@ import lavasnek_rs
 import lightbulb
 import yuyo
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from asyncpraw import Reddit
 from lightbulb.utils.data_store import DataStore
+from reddist import RedisRedditCacher
 from tortoise import Tortoise
 
 from models import GuildModel
 from peacebot import bot_config, lavalink_config
+from peacebot.config.reddit import reddit_config
 from peacebot.core.event_handler import EventHandler
 from peacebot.core.utils.activity import CustomActivity
 from peacebot.core.utils.embed_colors import EmbedColors
@@ -42,10 +45,19 @@ class Peacebot(lightbulb.BotApp):
             default_enabled_guilds=bot_config.test_guilds,
             intents=hikari.Intents.ALL,
         )
+        redis = aioredis.from_url(url="redis://redis")
         self.d = DataStore(
             data=Data(),
             component_client=yuyo.ComponentClient.from_gateway_bot(self),
-            redis=aioredis.from_url(url="redis://redis"),
+            redis=redis,
+            reddit_cacher=RedisRedditCacher(
+                Reddit(
+                    client_id=reddit_config.client_id,
+                    client_secret=reddit_config.client_secret,
+                    user_agent="Peace Bot",
+                ),
+                redis,
+            ),
             scheduler=AsyncIOScheduler(),
         )
         self.custom_activity = CustomActivity(self)

@@ -9,7 +9,7 @@ name = "peacebot v2"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.11"
+python = ">=3.10,<3.11"
 pydantic = "^1.8.2"
 aerich = "0.5.3"
 asyncpg = "^0.24.0"
@@ -23,6 +23,7 @@ APScheduler = "^3.8.1"
 uvloop = "^0.16.0"
 aiofiles = "0.6.0"
 asyncpraw = "^7.5.0"
+reddist = "0.1.2"
 
 [tool.poetry.dev-dependencies]
 black = "^21.11b0"

@@ -1,12 +1,10 @@
-import random
+import logging
 
 import hikari
 import lightbulb
 from lightbulb import commands, context
 
 from peacebot.core.utils.embed_colors import EmbedColors
-
-from . import RedditCacher
 
 nsfw_plugin = lightbulb.Plugin("NSFW")
 nsfw_plugin.add_checks(
@@ -17,19 +15,17 @@ nsfw_plugin.add_checks(
     ),
     lightbulb.nsfw_channel_only,
 )
-reddit_cacher = RedditCacher("peacebot/cache/reddit.pickle", 1000)
 
 
 async def send_random_post(ctx: context.Context, subreddit_name: str) -> None:
-    posts = await reddit_cacher.get_subreddit_posts(subreddit_name)
-    if not posts:
+    post = await ctx.bot.d.reddit_cacher.get_random_post(subreddit_name)
+    if not post:
         raise lightbulb.LightbulbError("Internal Error Occured, please report!")
-
-    post = random.choice(posts)
+    logging.info(post)
     embed = (
         hikari.Embed(
             title=post.title,
-            url=post.url,
+            url="https://www.reddit.com" + post.permalink,
             color=EmbedColors.GENERIC,
         )
         .set_image(post.url)
@@ -41,7 +37,6 @@ async def send_random_post(ctx: context.Context, subreddit_name: str) -> None:
 @nsfw_plugin.command()
 @lightbulb.command("ass", "Get some juicy ass pics", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-@reddit_cacher.command("ass")
 async def nsfw_ass(ctx: context.Context) -> None:
     await send_random_post(ctx, "ass")
 
@@ -49,7 +44,6 @@ async def nsfw_ass(ctx: context.Context) -> None:
 @nsfw_plugin.command()
 @lightbulb.command("boobs", "Mommy milkers?", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-@reddit_cacher.command("boobs")
 async def nsfw_boobs(ctx: context.Context) -> None:
     await send_random_post(ctx, "boobs")
 
@@ -57,7 +51,6 @@ async def nsfw_boobs(ctx: context.Context) -> None:
 @nsfw_plugin.command()
 @lightbulb.command("pussy", "pussy cat, meow", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-@reddit_cacher.command("pussy")
 async def nsfw_pussy(ctx: context.Context) -> None:
     await send_random_post(ctx, "pussy")
 
@@ -65,7 +58,6 @@ async def nsfw_pussy(ctx: context.Context) -> None:
 @nsfw_plugin.command()
 @lightbulb.command("hentai", "no judging", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-@reddit_cacher.command("hentai")
 async def nsfw_hentai(ctx: context.Context) -> None:
     await send_random_post(ctx, "hentai")
 
@@ -73,7 +65,6 @@ async def nsfw_hentai(ctx: context.Context) -> None:
 @nsfw_plugin.command()
 @lightbulb.command("cum", "fappacino", auto_defer=True)
 @lightbulb.implements(commands.SlashCommand, commands.PrefixCommand)
-@reddit_cacher.command("cumsluts")
 async def nsfw_cum(ctx: context.Context) -> None:
     await send_random_post(ctx, "cumsluts")
 
