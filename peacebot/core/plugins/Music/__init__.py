@@ -1,11 +1,13 @@
-import re
+# import re
 
 import lavasnek_rs
 import lightbulb
 
-URL_REGEX = re.compile(
-    r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
-)
+__all__ = ["_join", "_leave", "check_voice_state", "fetch_lavalink"]
+
+# URL_REGEX = re.compile(
+#     r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+# )
 
 
 class MusicError(lightbulb.LightbulbError):
@@ -13,6 +15,7 @@ class MusicError(lightbulb.LightbulbError):
 
 
 async def _join(ctx: lightbulb.Context) -> int:
+    lavalink = fetch_lavalink(ctx.bot)
     if ctx.bot.cache.get_voice_state(ctx.get_guild(), ctx.bot.get_me()):
         raise MusicError("I am already connected to another Voice Channel.")
     states = ctx.bot.cache.get_voice_states_view_for_guild(ctx.get_guild())
@@ -24,21 +27,24 @@ async def _join(ctx: lightbulb.Context) -> int:
     channel_id = voice_state[0].channel_id
 
     try:
-        connection_info = await ctx.bot.d.data.lavalink.join(ctx.guild_id, channel_id)
+        connection_info = await lavalink.join(ctx.guild_id, channel_id)
 
     except TimeoutError:
         raise MusicError("I cannot connect to your voice channel!")
 
-    await ctx.bot.d.data.lavalink.create_session(connection_info)
+    await lavalink.create_session(connection_info)
+    node = await lavalink.get_guild_node(ctx.guild_id)
+    node.set_data({ctx.guild_id: ctx.channel_id})
     return channel_id
 
 
 async def _leave(ctx: lightbulb.Context):
-    await ctx.bot.d.data.lavalink.destroy(ctx.guild_id)
-    await ctx.bot.d.data.lavalink.stop(ctx.guild_id)
-    await ctx.bot.d.data.lavalink.leave(ctx.guild_id)
-    await ctx.bot.d.data.lavalink.remove_guild_node(ctx.guild_id)
-    await ctx.bot.d.data.lavalink.remove_guild_from_loops(ctx.guild_id)
+    lavalink = fetch_lavalink(ctx.bot)
+    await lavalink.destroy(ctx.guild_id)
+    await lavalink.stop(ctx.guild_id)
+    await lavalink.leave(ctx.guild_id)
+    await lavalink.remove_guild_node(ctx.guild_id)
+    await lavalink.remove_guild_from_loops(ctx.guild_id)
 
     await ctx.respond("I left the voice channel!")
 
