@@ -10,7 +10,7 @@ from lightbulb.utils import nav
 from peacebot.core.utils.embed_colors import EmbedColors
 from peacebot.core.utils.utilities import _chunk
 
-from . import URL_REGEX, MusicError, _join, _leave, check_voice_state, fetch_lavalink
+from . import MusicError, _join, _leave, check_voice_state, fetch_lavalink
 
 music_plugin = lightbulb.Plugin("Music")
 
@@ -301,12 +301,6 @@ async def shuffle(ctx: lightbulb.Context) -> None:
 # @lightbulb.set_help(docstring=True) # INFO: Potentially a Bug
 @lightbulb.add_cooldown(2, 1, lightbulb.UserBucket)
 @lightbulb.command("skip", "Skip the song that's currently playing.")
-# @lightbulb.bot_has_guild_permissions(
-#     hikari.Permissions.CONNECT
-#     | hikari.Permissions.SPEAK
-#     | hikari.Permissions.VIEW_CHANNEL
-#     | hikari.Permissions.SEND_MESSAGES
-# )
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 @check_voice_state
 async def skip(ctx: lightbulb.Context) -> None:
@@ -329,7 +323,7 @@ async def skip(ctx: lightbulb.Context) -> None:
         await lavalink.stop(ctx.guild_id)
 
     embed = hikari.Embed(
-        title="⏭️ Skipped",
+        title="⏭️ Skipped..",
         color=EmbedColors.INFO,
         description=f"[{skip.track.info.title}]({skip.track.info.uri})",
     )
@@ -494,6 +488,15 @@ async def nowplaying(ctx: lightbulb.Context) -> None:
         embed.add_field(name=name, value=value, inline=inline)
     resp = await ctx.respond(embed=embed, components=menu.build())
     await menu.run(resp)
+
+
+@music_plugin.command
+@lightbulb.command("clear", "Clear the queue")
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def clear_queue(ctx: lightbulb.Context) -> None:
+    await _leave(ctx)
+    await _join(ctx)
+    await ctx.respond("Cleared the queue!")
 
 
 def load(bot: lightbulb.BotApp) -> None:
