@@ -483,7 +483,7 @@ black = "^21.12b0"
 type = "git"
 url = "https://github.com/vicky5124/lavasnek_rs"
 reference = "master"
-resolved_reference = "2e555857a1a40dac7bad0e2c1bbdb5aa45dd432b"
+resolved_reference = "651f4c5f1f42b5b07ca27ca4ea6130520a6c5c56"
 
 [[package]]
 name = "lightbulb-ext-neon"
