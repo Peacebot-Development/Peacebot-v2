@@ -4,8 +4,10 @@ from typing import TYPE_CHECKING
 
 import hikari
 import lavasnek_rs
+import miru
 
-from peacebot.core.plugins.Music import MusicError
+from peacebot.core.plugins.Music import MusicError, fetch_lavalink
+from peacebot.core.plugins.Music.music import Controls
 from peacebot.core.utils.embed_colors import EmbedColors
 
 if TYPE_CHECKING:
@@ -21,6 +23,7 @@ class EventHandler:
     async def track_start(
         self, lavalink: lavasnek_rs.Lavalink, event: lavasnek_rs.TrackStart
     ) -> None:
+        view = Controls(self.bot, timeout=120)
         logger.info(f"Track started on Guild: {event.guild_id}")
         node = await lavalink.get_guild_node(event.guild_id)
 
@@ -46,7 +49,9 @@ class EventHandler:
             )
         )
 
-        await channel.send(embed=embed)
+        message = await channel.send(embed=embed, components=view.build())
+        view.start(message)
+        await view.wait()
 
     async def track_finish(
         self, _: lavasnek_rs.Lavalink, event: lavasnek_rs.TrackFinish
@@ -70,6 +75,7 @@ class EventHandler:
     async def track_stuck(
         self, lavalink: lavasnek_rs.Lavalink, event: lavasnek_rs.TrackStuck
     ) -> None:
+        view = Controls(self.bot, timeout=120)
         logger.warning("Track stuck on Guild: %d", event.guild_id)
         node = await lavalink.get_guild_node(event.guild_id)
         if node:
@@ -78,7 +84,9 @@ class EventHandler:
             channel = self.bot.cache.get_guild_channel(channel_id)
         embed = hikari.Embed(
             title="Track Stuck",
-            description=f"Type:```{event.track_stuck_type}```",
+            description=f"Looks like [{node.now_playing.track.info.title}]({node.now_playing.track.info.uri}) got stuck!",
             color=EmbedColors.ERROR,
         )
-        await channel.send(embed=embed)
+        message = await channel.send(embed=embed, components=view.build())
+        view.start(message)
+        await view.wait()
