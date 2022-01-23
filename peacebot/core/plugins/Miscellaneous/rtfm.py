@@ -10,6 +10,8 @@ languages = {
     "lightbulb": RTFMManager(
         "lightbulb", "https://hikari-lightbulb.readthedocs.io/en/latest"
     ),
+    "django": RTFMManager("django", "https://django.readthedocs.io/en/latest/"),
+    "flask": RTFMManager("flask", "https://flask.palletsprojects.com/en/2.0.x/"),
 }
 
 
@@ -49,6 +51,26 @@ async def rtfm_hikari(ctx: lightbulb.Context) -> None:
 async def rtfm_lightbulb(ctx: lightbulb.Context) -> None:
     response_lightbulb = await languages["lightbulb"].do_rtfm(ctx.options.object)
     await ctx.respond(response_lightbulb)
+
+
+@rtfm.child
+@lightbulb.option("object", "The object or thing to search for")
+@lightbulb.command("django", "Get references for Django")
+@lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
+@error_handler()
+async def rtfm_django(ctx: lightbulb.Context) -> None:
+    response_django = await languages["django"].do_rtfm(ctx.options.object)
+    await ctx.respond(response_django)
+
+
+@rtfm.child
+@lightbulb.option("object", "The object or thing to search for")
+@lightbulb.command("flask", "Get references for Flask")
+@lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
+@error_handler()
+async def rtfm_flask(ctx: lightbulb.Context) -> None:
+    response_flask = await languages["flask"].do_rtfm(ctx.options.object)
+    await ctx.respond(response_flask)
 
 
 def load(bot: lightbulb.BotApp) -> None:
