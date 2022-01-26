@@ -10,7 +10,16 @@ from peacebot.core.utils.embed_colors import EmbedColors
 logger = logging.getLogger("error_handler")
 
 
+class HelpersError(lightbulb.LightbulbError):
+    pass
+
+
+class ModerationError(lightbulb.LightbulbError):
+    pass
+
+
 async def on_error(event: lightbulb.CommandErrorEvent) -> None:
+
     error = event.exception
     if isinstance(error, lightbulb.CommandNotFound):
         return
@@ -32,7 +41,9 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
             color=EmbedColors.ALERT,
             description=_message,
         )
-        return await event.context.respond(embed=embed)
+        return await event.context.respond(
+            embed=embed, flags=hikari.MessageFlag.EPHEMERAL
+        )
 
     if isinstance(error, lightbulb.CommandIsOnCooldown):
         embed = hikari.Embed(
@@ -40,7 +51,9 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
             color=EmbedColors.ALERT,
             description=f"This command is on cooldown, please retry in {math.ceil(error.retry_after)}s.",
         )
-        return await event.context.respond(embed=embed)
+        return await event.context.respond(
+            embed=embed, flags=hikari.MessageFlag.EPHEMERAL
+        )
 
     if isinstance(error, lightbulb.NotEnoughArguments):
         return await event.bot.help_command.send_command_help(
@@ -63,10 +76,15 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
             color=EmbedColors.ALERT,
             description=_message,
         )
-        return await event.context.respond(embed=embed)
+        return await event.context.respond(
+            embed=embed, flags=hikari.MessageFlag.EPHEMERAL
+        )
 
     title = " ".join(re.compile(r"[A-Z][a-z]*").findall(error.__class__.__name__))
     await event.context.respond(
-        embed=hikari.Embed(title=title, description=str(error), color=EmbedColors.ALERT)
+        embed=hikari.Embed(
+            title=title, description=str(error), color=EmbedColors.ALERT
+        ),
+        flags=hikari.MessageFlag.EPHEMERAL,
     )
     raise error
