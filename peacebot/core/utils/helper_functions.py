@@ -1,11 +1,17 @@
 import functools
 import logging
+import re
 import typing as t
 
 import lightbulb
 from lightbulb import LightbulbError
 
+from .errors import HelpersError
+
 logger = logging.getLogger(__name__)
+
+time_regex = re.compile("(?:(\d{1,5})(h|s|m|d|w))+?")
+time_dict = {"h": 3600, "s": 1, "m": 60, "d": 86400, "w": 604800}
 
 
 class CommandError(LightbulbError):
@@ -36,3 +42,20 @@ def error_handler(error_mapping: t.Optional[dict[Exception, str]] = None):
         return wrapper
 
     return prediate
+
+
+def convert_time(argument: str) -> float:
+    args = argument.lower()
+    matches = re.findall(time_regex, args)
+    time = 0
+    for value, key in matches:
+        try:
+            time += time_dict[key] * float(value)
+        except KeyError:
+            raise HelpersError(
+                f"{key} is an invalid time key!\nThe valid keys are h/m/s/d"
+            )
+        except ValueError:
+            raise HelpersError(f"{value} is not a number.")
+
+    return time
