@@ -1,0 +1,49 @@
+from datetime import datetime, timedelta, timezone
+
+import hikari
+import lightbulb
+
+from peacebot.core.utils.embed_colors import EmbedColors
+from peacebot.core.utils.errors import ModerationError
+from peacebot.core.utils.helper_functions import convert_time
+from peacebot.core.utils.permissions import moderation_role_check
+
+mod_plugin = lightbulb.Plugin("Mod", "Commands to be used by the Moderators")
+
+
+@mod_plugin.command
+@lightbulb.option("reason", "Reason for the timeout", type=str)
+@lightbulb.option("time", "The duration of timeout (Eg. 10s, 3d, 5d)", type=str)
+@lightbulb.option("member", "The member to timeout", type=hikari.Member)
+@lightbulb.command("timeout", "Timeout a member from the server")
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+@moderation_role_check
+async def timeout_command(ctx: lightbulb.Context) -> None:
+    member: hikari.Member = ctx.options.member
+    now = datetime.now(timezone.utc)
+    time_seconds = convert_time(ctx.options.time)
+    then = now + timedelta(seconds=time_seconds)
+    if (then - now).days > 28:
+        raise ModerationError("You cannot timeout members for more than 28 days!")
+    await member.edit(communication_disabled_until=then, reason=ctx.options.reason)
+    embed = (
+        hikari.Embed(
+            description=f"🔇Timed Out {member}\n**Reason:** {ctx.options.reason}",
+            color=EmbedColors.ERROR,
+            timestamp=datetime.now().astimezone(),
+        )
+        .set_author(
+            name=f"{ctx.author}(ID {ctx.author.id})", icon=ctx.author.avatar_url
+        )
+        .set_footer(text=f"Time: {ctx.options.time}")
+        .set_thumbnail(member.avatar_url)
+    )
+    await ctx.respond(embed=embed)
+
+
+def load(bot: lightbulb.BotApp) -> None:
+    bot.add_plugin(mod_plugin)
+
+
+def unload(bot: lightbulb.BotApp) -> None:
+    bot.remove_plugin(mod_plugin)
