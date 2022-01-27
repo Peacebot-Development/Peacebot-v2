@@ -63,3 +63,17 @@ class AutoResponseModel(CustomModel):
         table = "autoresponses"
         table_description = "Represents the autoresponses for each GuildModel"
         unique_together = (("guild", "trigger"),)
+
+
+class ModerationRoles(CustomModel):
+    id = fields.IntField(pk=True)
+    admin_role = fields.BigIntField(description="ID of the Admin role", null=True)
+    mod_role = fields.BigIntField(description="ID of the Mod role", null=True)
+    moderation_role = fields.BigIntField(
+        description="ID of the General Moderation Role", null=True
+    )
+    guild_id = fields.BigIntField(description="Guild ID")
+
+    class Meta:
+        table = "staff_roles"
+        table_description = "Stores the roles for the moderation"
