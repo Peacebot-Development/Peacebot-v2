@@ -1,9 +1,7 @@
 import hikari
 import lightbulb
 
-from models import GuildModel, ModerationRoles
-
-from . import get
+from models import GuildModel, ModerationRoles, ModLogs
 
 
 class PermissionsError(lightbulb.LightbulbError):
@@ -122,3 +120,13 @@ async def mod_logs_check(ctx: lightbulb.Context) -> hikari.GuildChannel:
     channel = (ctx.get_guild()).get_channel(model.mod_log_channel)
     assert channel is not None
     return channel
+
+
+async def delete_moderation_roles(model: ModerationRoles) -> None:
+    if (
+        model.admin_role is None
+        and model.mod_role is None
+        and model.moderation_role is None
+    ):
+        return await model.delete()
+    pass
