@@ -1,6 +1,4 @@
 from datetime import datetime, timedelta, timezone
-from operator import mod
-from time import time
 
 import hikari
 import lightbulb
