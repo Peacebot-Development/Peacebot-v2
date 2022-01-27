@@ -5,7 +5,11 @@ import lightbulb
 
 from models import GuildModel, ModerationRoles
 from peacebot.core.utils.embed_colors import EmbedColors
-from peacebot.core.utils.permissions import PermissionsError, mod_logs_check
+from peacebot.core.utils.permissions import (
+    PermissionsError,
+    delete_moderation_roles,
+    mod_logs_check,
+)
 
 mod_helper = lightbulb.Plugin(
     "Moderation Helper",
@@ -27,7 +31,10 @@ async def config_command(ctx: lightbulb.Context) -> None:
 
 @config_command.child
 @lightbulb.option(
-    "role", "The role to set as general moderation role", type=hikari.Role
+    "role",
+    "The role to set as general moderation role",
+    type=hikari.Role,
+    required=False,
 )
 @lightbulb.command(
     "moderation",
@@ -39,6 +46,13 @@ async def moderation_role_command(ctx: lightbulb.Context) -> None:
     model = await ModerationRoles.get_or_none(guild_id=ctx.guild_id)
     if model is None:
         await ModerationRoles.create(guild_id=ctx.guild_id, moderation_role=role.id)
+    elif role is None:
+        model.moderation_role = None
+        await model.save()
+        await delete_moderation_roles(model)
+        return await ctx.respond(
+            "Cleared Moderation role for the guild", flags=hikari.MessageFlag.EPHEMERAL
+        )
     else:
         model.moderation_role = role.id
         await model.save()
@@ -55,16 +69,25 @@ async def moderation_role_command(ctx: lightbulb.Context) -> None:
 
 
 @config_command.child
-@lightbulb.option("role", "The role to set as mod role", type=hikari.Role)
+@lightbulb.option(
+    "role", "The role to set as mod role", type=hikari.Role, required=False
+)
 @lightbulb.command(
     "mod", "Setup Mod role for the server[Example: /role mod @Moderator]"
 )
 @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 async def mod_role_command(ctx: lightbulb.Context) -> None:
-    role: hikari.Role = ctx.options.role
+    role: hikari.Role | None = ctx.options.role
     model = await ModerationRoles.get_or_none(guild_id=ctx.guild_id)
     if model is None:
         await ModerationRoles.create(guild_id=ctx.guild_id, mod_role=role.id)
+    elif role is None:
+        model.mod_role = None
+        await model.save()
+        await delete_moderation_roles(model)
+        return await ctx.respond(
+            "Cleared Mod role for the guild", flags=hikari.MessageFlag.EPHEMERAL
+        )
     else:
         model.mod_role = role.id
         await model.save()
@@ -80,16 +103,25 @@ async def mod_role_command(ctx: lightbulb.Context) -> None:
 
 
 @config_command.child
-@lightbulb.option("role", "The role to set as admin role", type=hikari.Role)
+@lightbulb.option(
+    "role", "The role to set as admin role", type=hikari.Role, required=False
+)
 @lightbulb.command(
     "admin", "Setup Admin role for the server[Example: /role admin @Admin]"
 )
 @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 async def admin_role_command(ctx: lightbulb.Context) -> None:
-    role: hikari.Role = ctx.options.role
+    role: hikari.Role | None = ctx.options.role
     model = await ModerationRoles.get_or_none(guild_id=ctx.guild_id)
     if model is None:
         await ModerationRoles.create(guild_id=ctx.guild_id, admin_role=role.id)
+    elif role is None:
+        model.admin_role = None
+        await model.save()
+        await delete_moderation_roles(model)
+        return await ctx.respond(
+            "Cleared Admin role for the guild", flags=hikari.MessageFlag.EPHEMERAL
+        )
     else:
         model.admin_role = role.id
         await model.save()
@@ -133,26 +165,6 @@ async def list_command(ctx: lightbulb.Context) -> None:
     for name, value, inline in fields:
         embed.add_field(name=name, value=value, inline=inline)
     await ctx.respond(embed=embed)
-
-
-@config_command.child
-@lightbulb.command("clear", "Clear all the moderation roles")
-@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-async def clear_command(ctx: lightbulb.Context) -> None:
-    model = await ModerationRoles.get_or_none(guild_id=ctx.guild_id)
-    if model is None:
-        await ctx.bot.help_command.send_group_help(ctx, ctx.command)
-        raise PermissionsError("No Moderation roles have been setup for the server!")
-
-    await model.delete()
-    await ctx.respond(
-        embed=hikari.Embed(
-            title=f"Config [Moderation Roles] - {ctx.get_guild().name}",
-            description="All moderation roles have been cleared",
-            color=EmbedColors.SUCCESS,
-            timestamp=datetime.now().astimezone(),
-        )
-    )
 
 
 @config_command.child
