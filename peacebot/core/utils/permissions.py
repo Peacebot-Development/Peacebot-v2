@@ -1,7 +1,7 @@
 import hikari
 import lightbulb
 
-from models import ModerationRoles
+from models import GuildModel, ModerationRoles
 
 from . import get
 
@@ -111,3 +111,14 @@ async def higher_role_check(author: hikari.Member, member: hikari.Member) -> Non
         raise PermissionsError(
             "You cannot run moderation commands on this user, as they have got similar permissions and roles to yours."
         )
+
+
+async def mod_logs_check(ctx: lightbulb.Context) -> hikari.GuildChannel:
+    model = await GuildModel.get_or_none(id=ctx.guild_id)
+    if model is None or model.mod_log_channel is None:
+        raise PermissionsError(
+            f"No Mod Logs channel found for the guild\nUse `/config modlog` to set."
+        )
+    channel = (ctx.get_guild()).get_channel(model.mod_log_channel)
+    assert channel is not None
+    return channel
