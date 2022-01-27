@@ -3,7 +3,7 @@ from datetime import datetime
 import hikari
 import lightbulb
 
-from models import ModerationRoles
+from models import GuildModel, ModerationRoles
 from peacebot.core.utils.embed_colors import EmbedColors
 from peacebot.core.utils.permissions import PermissionsError
 
@@ -19,13 +19,13 @@ mod_helper.add_checks(
 
 
 @mod_helper.command
-@lightbulb.command("role", "Setup Moderation roles for the server")
+@lightbulb.command("config", "Setup Moderation roles for the server")
 @lightbulb.implements(lightbulb.SlashCommandGroup, lightbulb.PrefixCommandGroup)
-async def role_command(ctx: lightbulb.Context) -> None:
+async def config_command(ctx: lightbulb.Context) -> None:
     await ctx.bot.help_command.send_group_help(ctx, ctx.command)
 
 
-@role_command.child
+@config_command.child
 @lightbulb.option(
     "role", "The role to set as general moderation role", type=hikari.Role
 )
@@ -54,7 +54,7 @@ async def moderation_role_command(ctx: lightbulb.Context) -> None:
     )
 
 
-@role_command.child
+@config_command.child
 @lightbulb.option("role", "The role to set as mod role", type=hikari.Role)
 @lightbulb.command(
     "mod", "Setup Mod role for the server[Example: /role mod @Moderator]"
@@ -79,7 +79,7 @@ async def mod_role_command(ctx: lightbulb.Context) -> None:
     )
 
 
-@role_command.child
+@config_command.child
 @lightbulb.option("role", "The role to set as admin role", type=hikari.Role)
 @lightbulb.command(
     "admin", "Setup Admin role for the server[Example: /role admin @Admin]"
@@ -104,7 +104,7 @@ async def admin_role_command(ctx: lightbulb.Context) -> None:
     )
 
 
-@role_command.child
+@config_command.child
 @lightbulb.command("list", "List all the moderation roles")
 @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 async def list_command(ctx: lightbulb.Context) -> None:
@@ -139,7 +139,7 @@ async def list_command(ctx: lightbulb.Context) -> None:
     await ctx.respond(embed=embed)
 
 
-@role_command.child
+@config_command.child
 @lightbulb.command("clear", "Clear all the moderation roles")
 @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 async def clear_command(ctx: lightbulb.Context) -> None:
@@ -153,6 +153,29 @@ async def clear_command(ctx: lightbulb.Context) -> None:
         embed=hikari.Embed(
             title=f"Moderation Roles - {ctx.get_guild().name}",
             description="All moderation roles have been cleared",
+            color=EmbedColors.SUCCESS,
+            timestamp=datetime.now().astimezone(),
+        )
+    )
+
+
+@config_command.child
+@lightbulb.option(
+    "channel", "The channel to set as mod-logs channel", type=hikari.GuildChannel
+)
+@lightbulb.command("modlog", "Set mod-logs for the server")
+@lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
+async def modlog_command(ctx: lightbulb.Context) -> None:
+    channel: hikari.GuildTextChannel = ctx.options.channel
+    model = await GuildModel.get_or_none(id=ctx.guild_id)
+    if model is None:
+        raise PermissionsError("Guild Model not found for the server.")
+    model.mod_log_channel = channel.id
+    await model.save()
+    await ctx.respond(
+        embed=hikari.Embed(
+            title=f"Config [Mod Log] - {ctx.get_guild().name}",
+            description=f"<#{channel.id}> set to Mod Logs channel for the guild!",
             color=EmbedColors.SUCCESS,
             timestamp=datetime.now().astimezone(),
         )
