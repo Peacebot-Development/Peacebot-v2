@@ -5,7 +5,7 @@ import lightbulb
 
 from models import GuildModel, ModerationRoles
 from peacebot.core.utils.embed_colors import EmbedColors
-from peacebot.core.utils.permissions import PermissionsError
+from peacebot.core.utils.permissions import PermissionsError, mod_logs_check
 
 mod_helper = lightbulb.Plugin(
     "Moderation Helper",
@@ -45,7 +45,7 @@ async def moderation_role_command(ctx: lightbulb.Context) -> None:
 
     await ctx.respond(
         embed=hikari.Embed(
-            title=f"Moderation Role - {ctx.get_guild().name}",
+            title=f"Config [Moderation Role] - {ctx.get_guild().name}",
             description=f"General Moderation role was set to {role.mention}",
             color=EmbedColors.SUCCESS,
             timestamp=datetime.now().astimezone(),
@@ -70,7 +70,7 @@ async def mod_role_command(ctx: lightbulb.Context) -> None:
         await model.save()
     await ctx.respond(
         embed=hikari.Embed(
-            title=f"Mod Role - {ctx.get_guild().name}",
+            title=f"Config [Mod Role] - {ctx.get_guild().name}",
             description=f"Moderation role was set to {role.mention}",
             color=EmbedColors.SUCCESS,
             timestamp=datetime.now().astimezone(),
@@ -95,7 +95,7 @@ async def admin_role_command(ctx: lightbulb.Context) -> None:
         await model.save()
     await ctx.respond(
         embed=hikari.Embed(
-            title=f"Admin Role - {ctx.get_guild().name}",
+            title=f"Config [Admin Role] - {ctx.get_guild().name}",
             description=f"Admin role was set to {role.mention}",
             color=EmbedColors.SUCCESS,
             timestamp=datetime.now().astimezone(),
@@ -105,37 +105,33 @@ async def admin_role_command(ctx: lightbulb.Context) -> None:
 
 
 @config_command.child
-@lightbulb.command("list", "List all the moderation roles")
+@lightbulb.command("list", "List all the config variables")
 @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 async def list_command(ctx: lightbulb.Context) -> None:
+    mod_logs = await mod_logs_check(ctx)
     model = await ModerationRoles.get_or_none(guild_id=ctx.guild_id)
     if model is None:
         await ctx.bot.help_command.send_group_help(ctx, ctx.command)
         raise PermissionsError("No Moderation roles have been setup for the server!")
 
-    embed = (
-        hikari.Embed(
-            title=f"Moderation Roles - {ctx.get_guild().name}",
-            description="",
-            color=EmbedColors.SUCCESS,
-            timestamp=datetime.now().astimezone(),
-        )
-        .add_field(
-            name="General Moderation Role",
-            value=f"<@&{model.moderation_role}>" if model.moderation_role else "None",
-            inline=True,
-        )
-        .add_field(
-            name="Mod Role",
-            value=f"<@&{model.mod_role}>" if model.mod_role else "None",
-            inline=True,
-        )
-        .add_field(
-            name="Admin Role",
-            value=f"<@&{model.admin_role}>" if model.admin_role else "None",
-            inline=True,
-        )
+    embed = hikari.Embed(
+        title=f"Config List - {ctx.get_guild().name}",
+        description="",
+        color=EmbedColors.SUCCESS,
+        timestamp=datetime.now().astimezone(),
     )
+    fields: list[tuple[str, int, bool]] = [
+        ("Mod Logs Channel", f"<#{mod_logs.id}>", False),
+        (
+            "General Moderation Role",
+            f"<@&{model.moderation_role}>" if model.moderation_role else "None",
+            False,
+        ),
+        ("Mod Role", f"<@&{model.mod_role}>" if model.mod_role else "None", True),
+        ("Admin Role", f"<@&{model.admin_role}>" if model.admin_role else "None", True),
+    ]
+    for name, value, inline in fields:
+        embed.add_field(name=name, value=value, inline=inline)
     await ctx.respond(embed=embed)
 
 
@@ -151,7 +147,7 @@ async def clear_command(ctx: lightbulb.Context) -> None:
     await model.delete()
     await ctx.respond(
         embed=hikari.Embed(
-            title=f"Moderation Roles - {ctx.get_guild().name}",
+            title=f"Config [Moderation Roles] - {ctx.get_guild().name}",
             description="All moderation roles have been cleared",
             color=EmbedColors.SUCCESS,
             timestamp=datetime.now().astimezone(),
@@ -161,15 +157,27 @@ async def clear_command(ctx: lightbulb.Context) -> None:
 
 @config_command.child
 @lightbulb.option(
-    "channel", "The channel to set as mod-logs channel", type=hikari.GuildChannel
+    "channel",
+    "The channel to set as mod-logs channel",
+    type=hikari.TextableChannel,
+    required=False,
 )
 @lightbulb.command("modlog", "Set mod-logs for the server")
 @lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
 async def modlog_command(ctx: lightbulb.Context) -> None:
-    channel: hikari.GuildTextChannel = ctx.options.channel
+    channel: hikari.GuildTextChannel | None = ctx.options.channel
     model = await GuildModel.get_or_none(id=ctx.guild_id)
     if model is None:
         raise PermissionsError("Guild Model not found for the server.")
+
+    if channel is None:
+        model.mod_log_channel = None
+        await model.save()
+        return await ctx.respond(
+            "Removed Mod Logs channel for the guild!",
+            flags=hikari.MessageFlag.EPHEMERAL,
+        )
+
     model.mod_log_channel = channel.id
     await model.save()
     await ctx.respond(
