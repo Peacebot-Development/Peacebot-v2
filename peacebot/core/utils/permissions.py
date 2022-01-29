@@ -8,9 +8,24 @@ class PermissionsError(lightbulb.LightbulbError):
     pass
 
 
-async def has_permissions(
+def has_permissions(
     member: hikari.Member, permission: list[hikari.Permissions]
 ) -> bool:
+    """
+    Function that checks for specific permissions in a User
+
+    Parameters
+    ----------
+    member : hikari.Member
+        Member on whom the check is to be performed
+    permission : list[hikari.Permissions]
+        List of Permissions to be checked against the User
+
+    Returns
+    -------
+    bool
+        Boolean value based on whether the member has the required permissions or not
+    """
     roles = member.get_roles()
     perms = hikari.Permissions.NONE
     for role in roles:
@@ -22,13 +37,46 @@ async def has_permissions(
     return False
 
 
-async def role_check(member: hikari.Member, role: hikari.Role) -> bool:
+def role_check(member: hikari.Member, role: hikari.Role) -> bool:
+    """
+    Function that checks if a member has a certain role
+
+    Parameters
+    ----------
+    member : hikari.Member
+        Member on which check is to be performed
+    role : hikari.Role
+        Role which is to be checked on the user
+
+    Returns
+    -------
+    bool
+        [description]
+    """
     if role.id in member.role_ids:
         return True
     return False
 
 
 async def get_role_data(guild: hikari.Guild) -> dict:
+    """
+    This function retrieves the moderation roles set from the database and returns them in Python Dictionary
+
+    Parameters
+    ----------
+    guild : hikari.Guild
+        Guild whose roles are to be fetched
+
+    Returns
+    -------
+    dict
+        Key Value pairs of the moderation roles
+
+    Raises
+    ------
+    PermissionsError
+        Raised when no moderation roles are set for the server
+    """
     model = await ModerationRoles.get_or_none(guild_id=guild.id)
     if (
         model is None
@@ -57,8 +105,8 @@ def moderation_role_check(f):
             "moderation_role"
         )
         if not (
-            await has_permissions(ctx.member, ["MANAGE_MESSAGES", "ADMINISTRATOR"])
-            or await role_check(ctx.member, moderation_role)
+            has_permissions(ctx.member, ["MANAGE_MESSAGES", "ADMINISTRATOR"])
+            or role_check(ctx.member, moderation_role)
         ):
             raise PermissionsError(
                 f"You need to have the permissions required to run this command!\nRole Required: {moderation_role.mention}"
@@ -72,8 +120,8 @@ def mod_role_check(f):
     async def predicate(ctx: lightbulb.Context, *args, **kwargs):
         mod_role: hikari.Role = (await get_role_data(ctx.get_guild())).get("mod_role")
         if not (
-            await has_permissions(ctx.member, ["MANAGE_ROLES", "ADMINISTRATOR"])
-            or await role_check(ctx.member, mod_role)
+            has_permissions(ctx.member, ["MANAGE_ROLES", "ADMINISTRATOR"])
+            or role_check(ctx.member, mod_role)
         ):
             raise PermissionsError(
                 f"You need to have the permissions required to run this command!\nRole Required: {mod_role.mention}"
@@ -90,8 +138,8 @@ def admin_role_check(f):
             "admin_role"
         )
         if not (
-            await has_permissions(ctx.member, ["ADMINISTRATOR"])
-            or await role_check(ctx.member, admin_role)
+            has_permissions(ctx.member, ["ADMINISTRATOR"])
+            or role_check(ctx.member, admin_role)
         ):
             raise PermissionsError(
                 f"You need to have the permissions required to run this command!\nRole Required: {admin_role.mention}"
