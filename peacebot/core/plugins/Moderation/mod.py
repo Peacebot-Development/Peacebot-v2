@@ -9,6 +9,7 @@ from peacebot.core.utils.embed_colors import EmbedColors
 from peacebot.core.utils.errors import ModerationError
 from peacebot.core.utils.helper_functions import convert_time
 from peacebot.core.utils.permissions import (
+    higher_role_check,
     mod_logs_check,
     mod_role_check,
     moderation_role_check,
@@ -36,6 +37,7 @@ async def timeout(ctx: lightbulb.Context) -> None:
 @moderation_role_check
 async def timeout_enable_command(ctx: lightbulb.Context) -> None:
     member: hikari.Member = ctx.options.member
+    higher_role_check(ctx.author, member)
     mod_logs = await mod_logs_check(ctx)
     now = datetime.now(timezone.utc)
     time_seconds = convert_time(ctx.options.time)
@@ -76,6 +78,7 @@ async def timeout_enable_command(ctx: lightbulb.Context) -> None:
 @lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
 async def disable_timeout_command(ctx: lightbulb.Context) -> None:
     member: hikari.InteractionMember = ctx.options.member
+    higher_role_check(ctx.author, member)
     mod_logs = await mod_logs_check(ctx)
     now = datetime.now(timezone.utc)
     await member.edit(communication_disabled_until=now, reason=ctx.options.reason)
@@ -112,6 +115,7 @@ async def disable_timeout_command(ctx: lightbulb.Context) -> None:
 @mod_role_check
 async def kick_command(ctx: lightbulb.Context) -> None:
     member: hikari.InteractionMember = ctx.options.member
+    higher_role_check(ctx.author, member)
     mod_logs = await mod_logs_check(ctx)
     await member.kick(reason=ctx.options.reason)
     embed = (
