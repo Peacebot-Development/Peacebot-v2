@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from pathlib import Path
 
 import aioredis
 import hikari
@@ -20,7 +19,6 @@ from peacebot.config.reddit import reddit_config
 from peacebot.core.event_handler import EventHandler
 from peacebot.core.utils.activity import CustomActivity
 from peacebot.core.utils.embed_colors import EmbedColors
-from peacebot.core.utils.errors import on_error
 from tortoise_config import tortoise_config
 
 logger = logging.getLogger("peacebot.main")
@@ -74,7 +72,6 @@ class Peacebot(lightbulb.BotApp):
         self.event_manager.subscribe(hikari.StartedEvent, self.on_started)
         self.event_manager.subscribe(hikari.StoppingEvent, self.on_stopping)
         self.event_manager.subscribe(hikari.StoppedEvent, self.on_stopped)
-        self.event_manager.subscribe(lightbulb.CommandErrorEvent, on_error)
         self.event_manager.subscribe(hikari.ShardReadyEvent, self.on_shard_ready)
         self.event_manager.subscribe(hikari.GuildMessageCreateEvent, self.on_message)
 
