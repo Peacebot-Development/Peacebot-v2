@@ -1,6 +1,5 @@
 import hikari
 import lightbulb
-from isort import stream
 
 from models import GuildModel, ModerationRoles, ModLogs
 
@@ -102,7 +101,22 @@ def admin_role_check(f):
     return predicate
 
 
-async def higher_role_check(author: hikari.Member, member: hikari.Member) -> None:
+def higher_role_check(author: hikari.Member, member: hikari.Member) -> None:
+    """
+    This function helps in checking the role heirarchy position of author and the member of the command invokation
+
+    Parameters
+    ----------
+    author : hikari.Member
+        Author of command invokation
+    member : hikari.Member
+        Member of the command invokation
+
+    Raises
+    ------
+    PermissionsError
+        Raised when author role position is not higher than member role
+    """
     author_top_role = author.get_top_role()
     member_top_role = member.get_top_role()
 
@@ -113,6 +127,24 @@ async def higher_role_check(author: hikari.Member, member: hikari.Member) -> Non
 
 
 async def mod_logs_check(ctx: lightbulb.Context) -> hikari.GuildChannel:
+    """
+    This function helps in checking for Moderation Logging channel in a guild
+
+    Parameters
+    ----------
+    ctx : lightbulb.Context
+        Context of the Command Invokation
+
+    Returns
+    -------
+    hikari.GuildChannel
+        GuildChannel object of the Moderation Logging Channel
+
+    Raises
+    ------
+    PermissionsError
+        Raised when no Moderation Logging channel is set for the server
+    """
     model = await GuildModel.get_or_none(id=ctx.guild_id)
     if model is None or model.mod_log_channel is None:
         raise PermissionsError(
