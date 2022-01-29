@@ -3,15 +3,13 @@
 import lavasnek_rs
 import lightbulb
 
+from peacebot.core.utils.errors import MusicError
+
 __all__ = ["_join", "_leave", "check_voice_state", "fetch_lavalink"]
 
 # URL_REGEX = re.compile(
 #     r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
 # )
-
-
-class MusicError(lightbulb.LightbulbError):
-    pass
 
 
 async def _join(ctx: lightbulb.Context) -> int:
