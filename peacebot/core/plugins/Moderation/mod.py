@@ -59,11 +59,13 @@ async def timeout_enable_command(ctx: lightbulb.Context) -> None:
     response = await ctx.respond(embed=embed)
     message_link = (await response.message()).make_link(ctx.guild_id)
     await register_cases(
-        context=ctx,
-        reason=ctx.options.reason,
-        type="TimeOut Enable",
+        guild_id=ctx.guild_id,
+        moderator=ctx.author.id,
         target=member.id,
+        reason=ctx.options.reason,
         message_link=message_link,
+        channel_id=ctx.channel_id,
+        type="TimeOut Enable",
     )
 
 
@@ -92,11 +94,13 @@ async def disable_timeout_command(ctx: lightbulb.Context) -> None:
     response = await ctx.respond(embed=embed)
     message_link = (await response.message()).make_link(ctx.guild_id)
     await register_cases(
-        context=ctx,
-        reason=ctx.options.reason,
-        type="TimeOut Disable",
+        guild_id=ctx.guild_id,
+        moderator=ctx.author.id,
         target=member.id,
+        reason=ctx.options.reason,
         message_link=message_link,
+        channel_id=ctx.channel_id,
+        type="TimeOut Disable",
     )
 
 
@@ -125,11 +129,13 @@ async def kick_command(ctx: lightbulb.Context) -> None:
     response = await ctx.respond(embed=embed)
     message_link = (await response.message()).make_link(ctx.guild_id)
     await register_cases(
-        context=ctx,
-        reason=ctx.options.reason,
-        type="Kick",
+        guild_id=ctx.guild_id,
+        moderator=ctx.author.id,
         target=member.id,
+        reason=ctx.options.reason,
         message_link=message_link,
+        channel_id=ctx.channel_id,
+        type="Kick",
     )
 
 
