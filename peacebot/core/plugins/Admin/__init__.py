@@ -4,10 +4,7 @@ import hikari
 import lightbulb
 
 from peacebot.core.utils.embed_colors import EmbedColors
-
-
-class CommandError(lightbulb.LightbulbError):
-    pass
+from peacebot.core.utils.errors import CommandError
 
 
 async def handle_plugins(ctx: lightbulb.Context, plugin_str: str, action: str) -> None:
