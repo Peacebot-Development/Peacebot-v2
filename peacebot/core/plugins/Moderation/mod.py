@@ -8,7 +8,12 @@ from models import ModLogs
 from peacebot.core.utils.embed_colors import EmbedColors
 from peacebot.core.utils.errors import ModerationError
 from peacebot.core.utils.helper_functions import convert_time
-from peacebot.core.utils.permissions import mod_logs_check, moderation_role_check
+from peacebot.core.utils.permissions import (
+    mod_logs_check,
+    mod_role_check,
+    moderation_role_check,
+    register_cases,
+)
 from peacebot.core.utils.utilities import _chunk
 
 mod_plugin = lightbulb.Plugin("Mod", "Commands to be used by the Moderators")
@@ -41,7 +46,7 @@ async def timeout_enable_command(ctx: lightbulb.Context) -> None:
     embed = (
         hikari.Embed(
             description=f"🔇Timed Out -> {member}\n**Reason:** {ctx.options.reason}",
-            color=EmbedColors.ERROR,
+            color=EmbedColors.INFO,
             timestamp=datetime.now().astimezone(),
         )
         .set_author(
@@ -53,14 +58,12 @@ async def timeout_enable_command(ctx: lightbulb.Context) -> None:
     await mod_logs.send(embed=embed)
     response = await ctx.respond(embed=embed)
     message_link = (await response.message()).make_link(ctx.guild_id)
-    await ModLogs.create(
-        guild_id=ctx.guild_id,
-        moderator=f"<@{ctx.author.id}>",
-        target=f"<@{member.id}>",
+    await register_cases(
+        context=ctx,
         reason=ctx.options.reason,
-        message=message_link,
-        channel=f"<#{ctx.channel_id}>",
         type="TimeOut Enable",
+        target=member.id,
+        message_link=message_link,
     )
 
 
@@ -70,7 +73,7 @@ async def timeout_enable_command(ctx: lightbulb.Context) -> None:
 @lightbulb.command("disable", "Remove timeout from a member")
 @lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
 async def disable_timeout_command(ctx: lightbulb.Context) -> None:
-    member: hikari.Member = ctx.options.member
+    member: hikari.InteractionMember = ctx.options.member
     mod_logs = await mod_logs_check(ctx)
     now = datetime.now(timezone.utc)
     await member.edit(communication_disabled_until=now, reason=ctx.options.reason)
@@ -88,14 +91,45 @@ async def disable_timeout_command(ctx: lightbulb.Context) -> None:
     await mod_logs.send(embed=embed)
     response = await ctx.respond(embed=embed)
     message_link = (await response.message()).make_link(ctx.guild_id)
-    await ModLogs.create(
-        guild_id=ctx.guild_id,
-        moderator=f"<@{ctx.author.id}>",
-        target=f"<@{member.id}>",
+    await register_cases(
+        context=ctx,
         reason=ctx.options.reason,
-        message=message_link,
-        channel=f"<#{ctx.channel_id}>",
-        type="Timeout Disable",
+        type="TimeOut Disable",
+        target=member.id,
+        message_link=message_link,
+    )
+
+
+@mod_plugin.command
+@lightbulb.option("reason", "The reason to kick the member")
+@lightbulb.option("member", "The member to kick", type=hikari.Member)
+@lightbulb.command("kick", "Kick the member from the server")
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+@mod_role_check
+async def kick_command(ctx: lightbulb.Context) -> None:
+    member: hikari.InteractionMember = ctx.options.member
+    mod_logs = await mod_logs_check(ctx)
+    await member.kick(reason=ctx.options.reason)
+    embed = (
+        hikari.Embed(
+            description=f"👢 Kicked -> {member}\n**Reason:** {ctx.options.reason}",
+            color=EmbedColors.INFO,
+            timestamp=datetime.now().astimezone(),
+        )
+        .set_author(
+            name=f"{ctx.author}(ID {ctx.author.id})", icon=ctx.author.avatar_url
+        )
+        .set_thumbnail(member.avatar_url)
+    )
+    await mod_logs.send(embed=embed)
+    response = await ctx.respond(embed=embed)
+    message_link = (await response.message()).make_link(ctx.guild_id)
+    await register_cases(
+        context=ctx,
+        reason=ctx.options.reason,
+        type="Kick",
+        target=member.id,
+        message_link=message_link,
     )
 
 
