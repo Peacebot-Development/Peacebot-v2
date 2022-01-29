@@ -37,7 +37,7 @@ async def timeout(ctx: lightbulb.Context) -> None:
 @moderation_role_check
 async def timeout_enable_command(ctx: lightbulb.Context) -> None:
     member: hikari.Member = ctx.options.member
-    higher_role_check(ctx.author, member)
+    higher_role_check(ctx.member, member)
     mod_logs = await mod_logs_check(ctx)
     now = datetime.now(timezone.utc)
     time_seconds = convert_time(ctx.options.time)
@@ -78,7 +78,7 @@ async def timeout_enable_command(ctx: lightbulb.Context) -> None:
 @lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
 async def disable_timeout_command(ctx: lightbulb.Context) -> None:
     member: hikari.InteractionMember = ctx.options.member
-    higher_role_check(ctx.author, member)
+    higher_role_check(ctx.member, member)
     mod_logs = await mod_logs_check(ctx)
     now = datetime.now(timezone.utc)
     await member.edit(communication_disabled_until=now, reason=ctx.options.reason)
@@ -115,7 +115,7 @@ async def disable_timeout_command(ctx: lightbulb.Context) -> None:
 @mod_role_check
 async def kick_command(ctx: lightbulb.Context) -> None:
     member: hikari.InteractionMember = ctx.options.member
-    higher_role_check(ctx.author, member)
+    higher_role_check(ctx.member, member)
     mod_logs = await mod_logs_check(ctx)
     await member.kick(reason=ctx.options.reason)
     embed = (
@@ -140,6 +140,52 @@ async def kick_command(ctx: lightbulb.Context) -> None:
         message_link=message_link,
         channel_id=ctx.channel_id,
         type="Kick",
+    )
+
+
+@mod_plugin.command
+@lightbulb.option(
+    "days",
+    "Specify number of days of messages to delete(Min - 0, Max- 7)",
+    required=False,
+    type=int,
+)
+@lightbulb.option("reason", "The reason to ban the member")
+@lightbulb.option("member", "The member to ban", type=hikari.Member)
+@lightbulb.command("ban", "Ban the member from the server")
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+@mod_role_check
+async def ban_command(ctx: lightbulb.Context) -> None:
+    member: hikari.InteractionMember = ctx.options.member
+    higher_role_check(ctx.member, member)
+    mod_logs = await mod_logs_check(ctx)
+    if ctx.options.days > 7:
+        raise ModerationError("Cannot delete messages more than 7 days old!")
+    await member.ban(
+        delete_message_days=ctx.options.days or 0, reason=ctx.options.reason
+    )
+    embed = (
+        hikari.Embed(
+            description=f"🔨 Banned -> {member}\n**Reason:** {ctx.options.reason}",
+            color=EmbedColors.ERROR,
+            timestamp=datetime.now().astimezone(),
+        )
+        .set_author(
+            name=f"{ctx.author}(ID {ctx.author.id})", icon=ctx.author.avatar_url
+        )
+        .set_thumbnail(member.avatar_url)
+    )
+    await mod_logs.send(embed=embed)
+    response = await ctx.respond(embed=embed)
+    message_link = (await response.message()).make_link(ctx.guild_id)
+    await register_cases(
+        guild_id=ctx.guild_id,
+        moderator=ctx.author.id,
+        target=member.id,
+        reason=ctx.options.reason,
+        message_link=message_link,
+        channel_id=ctx.channel_id,
+        type="Ban",
     )
 
 
