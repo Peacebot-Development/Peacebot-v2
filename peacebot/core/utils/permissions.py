@@ -1,5 +1,6 @@
 import hikari
 import lightbulb
+from isort import stream
 
 from models import GuildModel, ModerationRoles, ModLogs
 
@@ -133,18 +134,40 @@ async def delete_moderation_roles(model: ModerationRoles) -> None:
 
 
 async def register_cases(
-    context: lightbulb.Context,
-    reason: str,
-    type: str,
+    guild_id: int,
+    moderator: int,
     target: int,
+    reason: str,
     message_link: str,
+    channel_id: int,
+    type: str,
 ) -> None:
+    """
+    This function helps in registering Moderation cases to the database
+
+    Parameters
+    ----------
+    guild_id : int
+        ID of the Guild where this moderation was performed
+    moderator : int
+        ID of the moderator who performed the action
+    target : int
+        ID of the target of the moderation action
+    reason : str
+        Reason due to which moderation action was taken
+    message_link : str
+        Link of the moderation message
+    channel_id : int
+        ID of the Channel where the action was performed
+    type : str
+        Type of Moderation Action, E.G => [Kick, Timeout Enable, Ban] etc.
+    """
     await ModLogs.create(
-        guild_id=context.guild_id,
-        moderator=f"<@{context.author.id}>",
+        guild_id=guild_id,
+        moderator=f"<@{moderator}>",
         target=f"<@{target}>",
         reason=reason,
         message=message_link,
-        channel=f"<#{context.channel_id}>",
+        channel=f"<#{channel_id}>",
         type=type,
     )
