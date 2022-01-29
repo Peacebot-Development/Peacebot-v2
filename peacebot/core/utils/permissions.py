@@ -2,10 +2,7 @@ import hikari
 import lightbulb
 
 from models import GuildModel, ModerationRoles, ModLogs
-
-
-class PermissionsError(lightbulb.LightbulbError):
-    pass
+from peacebot.core.utils.errors import PermissionsError
 
 
 def has_permissions(
