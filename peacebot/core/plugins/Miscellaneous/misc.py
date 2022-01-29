@@ -1,24 +1,25 @@
+import random
 from datetime import datetime, timedelta
 
 import hikari
 import lightbulb
 
-import peacebot.core.utils.helper_functions as hf
 from peacebot.core.utils.embed_colors import EmbedColors
+from peacebot.core.utils.helper_functions import convert_time, error_handler
 
-from . import convert_time, fetch_scheduler, send_remainder
+from . import fetch_scheduler, send_remainder
 
 misc_plugin = lightbulb.Plugin("Misc", "Miscellaneous Commands for the Bot")
 
 
 @misc_plugin.command
+@lightbulb.option("target", "The target of this command", type=hikari.Member)
 @lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
-@lightbulb.option("member", "Get member", type=hikari.Member, required=False)
-@lightbulb.command("avatar", "View a member's avatar", aliases=["av"])
-@lightbulb.implements(lightbulb.PrefixCommand, lightbulb.SlashCommand)
-@hf.error_handler()
+@lightbulb.command("avatar", "View a member's avatar")
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+@error_handler()
 async def avatar(ctx: lightbulb.Context) -> None:
-    member: hikari.Member = ctx.options.member or ctx.member
+    member: hikari.Member = ctx.options.target
 
     embed = (
         hikari.Embed(
@@ -34,14 +35,14 @@ async def avatar(ctx: lightbulb.Context) -> None:
 
 
 @misc_plugin.command
+@lightbulb.option("target", "The target of the command")
 @lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
-@lightbulb.option("member", "Get member", type=hikari.Member, required=False)
 @lightbulb.command("userinfo", "Get info of a user in a guild")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
-@hf.error_handler()
+@error_handler()
 async def userinfo(ctx: lightbulb.Context) -> None:
     guild = ctx.get_guild()
-    member: hikari.Member = ctx.options.member or ctx.member
+    member: hikari.Member = ctx.options.target
 
     created_at = int(member.created_at.timestamp())
     joined_at = int(member.joined_at.timestamp())
@@ -80,7 +81,7 @@ async def userinfo(ctx: lightbulb.Context) -> None:
         .set_footer(text=f"Requested by {ctx.author}", icon=ctx.author.avatar_url)
     )
 
-    fields = [
+    fields: list[tuple[str, str, bool]] = [
         ("ID", member.id, True),
         ("Joined", f"<t:{joined_at}:F> • <t:{joined_at}:R>", True),
         ("Created", f"<t:{created_at}:F> • <t:{created_at}:R>", True),
@@ -105,7 +106,7 @@ async def userinfo(ctx: lightbulb.Context) -> None:
 @lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
 @lightbulb.command("serverinfo", "View info of the server")
 @lightbulb.implements(lightbulb.PrefixCommand, lightbulb.SlashCommand)
-@hf.error_handler()
+@error_handler()
 async def serverinfo(ctx: lightbulb.Context) -> None:
     guild = ctx.get_guild()
     members_mapping = guild.get_members()
@@ -118,7 +119,7 @@ async def serverinfo(ctx: lightbulb.Context) -> None:
         .set_thumbnail(guild.icon_url)
         .set_footer(text=f"Requested by {ctx.author}", icon=ctx.author.avatar_url)
     )
-    fields = [
+    fields: list[tuple[str, str, bool]] = [
         ("ID", guild.id, True),
         ("Owner", f"<@{guild.owner_id}>", True),
         ("Members", len(members), True),
@@ -165,23 +166,34 @@ async def serverinfo(ctx: lightbulb.Context) -> None:
 @lightbulb.option("time", "Time period for the remainder")
 @lightbulb.command("remind", "Create a remainder")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
-@hf.error_handler()
+@error_handler()
 async def remainder(ctx: lightbulb.Context) -> None:
     if ctx.interaction is None:
         remainder = " ".join(ctx.options.remainder)
     else:
         remainder = ctx.options.remainder
-    time = ctx.options.time
-    time_seconds = await convert_time(ctx, time)
+    time = convert_time(ctx.options.time)
     scheduler = fetch_scheduler(ctx)
     scheduler.add_job(
         send_remainder,
         "date",
         (ctx, remainder),
-        next_run_time=datetime.now() + timedelta(seconds=int(time_seconds)),
+        next_run_time=datetime.now() + timedelta(seconds=int(time)),
     )
 
-    await ctx.respond("Created a remainder for you! :ok_hand:")
+    await ctx.respond(
+        f"Created a remainder for you! :ok_hand:\nTime: {ctx.options.time}"
+    )
+
+
+@misc_plugin.command
+@lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
+@lightbulb.option("object", "Plugin or Command to search for", required=False)
+@lightbulb.command("help", "Slash Command Version of help command")
+@lightbulb.implements(lightbulb.SlashCommand)
+@error_handler()
+async def help_command(ctx: lightbulb.Context) -> None:
+    await ctx.bot.help_command.send_help(ctx, ctx.options.object or None)
 
 
 def load(bot: lightbulb.BotApp) -> None:

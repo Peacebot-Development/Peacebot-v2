@@ -80,7 +80,6 @@ class Controls(miru.View):
 
 @music_plugin.command
 @lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
-@lightbulb.set_help(docstring=True)
 @lightbulb.command("join", "Join a voice channel of the guild")
 @lightbulb.implements(lightbulb.PrefixCommand, lightbulb.SlashCommand)
 async def join(ctx: lightbulb.Context) -> None:
@@ -515,6 +514,7 @@ async def nowplaying(ctx: lightbulb.Context) -> None:
 @music_plugin.command
 @lightbulb.command("clear", "Clear the queue")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+@check_voice_state
 async def clear_queue(ctx: lightbulb.Context) -> None:
     await _leave(ctx)
     await _join(ctx)

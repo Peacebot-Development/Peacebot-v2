@@ -1,7 +1,6 @@
 
 # Python Stuffs
 __pycache__/
-
 # Config Stuffs
 .env
 
@@ -11,3 +10,6 @@ migrations/
 
 # Cache
 *.pickle
+
+# Random Stuff
+test.py
