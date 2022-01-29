@@ -7,3 +7,15 @@ class HelpersError(lightbulb.LightbulbError):
 
 class ModerationError(lightbulb.LightbulbError):
     pass
+
+
+class CommandError(lightbulb.LightbulbError):
+    pass
+
+
+class MusicError(lightbulb.LightbulbError):
+    pass
+
+
+class PermissionsError(lightbulb.LightbulbError):
+    pass
