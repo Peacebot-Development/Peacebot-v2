@@ -130,3 +130,21 @@ async def delete_moderation_roles(model: ModerationRoles) -> None:
     ):
         return await model.delete()
     pass
+
+
+async def register_cases(
+    context: lightbulb.Context,
+    reason: str,
+    type: str,
+    target: int,
+    message_link: str,
+) -> None:
+    await ModLogs.create(
+        guild_id=context.guild_id,
+        moderator=f"<@{context.author.id}>",
+        target=f"<@{target}>",
+        reason=reason,
+        message=message_link,
+        channel=f"<#{context.channel_id}>",
+        type=type,
+    )
