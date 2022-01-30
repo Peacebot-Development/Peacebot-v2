@@ -15,10 +15,10 @@ misc_plugin = lightbulb.Plugin("Misc", "Miscellaneous Commands for the Bot")
 @misc_plugin.command
 @lightbulb.option("target", "The target of this command", type=hikari.Member)
 @lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
-@lightbulb.command("avatar", "View a member's avatar")
-@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+@lightbulb.command("Avatar", "View a member's avatar")
+@lightbulb.implements(lightbulb.UserCommand)
 @error_handler()
-async def avatar(ctx: lightbulb.Context) -> None:
+async def avatar(ctx: lightbulb.UserContext) -> None:
     member: hikari.Member = ctx.options.target
 
     embed = (
@@ -35,12 +35,11 @@ async def avatar(ctx: lightbulb.Context) -> None:
 
 
 @misc_plugin.command
-@lightbulb.option("target", "The target of the command")
 @lightbulb.add_cooldown(1, 5, lightbulb.UserBucket)
-@lightbulb.command("userinfo", "Get info of a user in a guild")
-@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+@lightbulb.command("Userinfo", "Get info of a user in a guild")
+@lightbulb.implements(lightbulb.UserCommand)
 @error_handler()
-async def userinfo(ctx: lightbulb.Context) -> None:
+async def userinfo(ctx: lightbulb.UserContext) -> None:
     guild = ctx.get_guild()
     member: hikari.Member = ctx.options.target
 
