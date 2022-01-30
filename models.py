@@ -75,16 +75,17 @@ class ModerationRoles(CustomModel):
     moderation_role = fields.BigIntField(
         description="ID of the General Moderation Role", null=True
     )
-    guild_id = fields.BigIntField(description="Guild ID")
+    guild = fields.ForeignKeyField("main.GuildModel", related_name="ModerationRoles")
 
     class Meta:
         table = "staff_roles"
         table_description = "Stores the roles for the moderation"
+        unique = "guild"
 
 
 class ModLogs(CustomModel):
     id = fields.IntField(description="ID of the Case", pk=True)
-    guild_id = fields.BigIntField(description="ID of the Guild")
+    guild = fields.ForeignKeyField("main.GuildModel", related_name="ModLogs")
     moderator = fields.TextField(description="Moderator that performed the action")
     target = fields.TextField(description="Victim of the moderation action")
     reason = fields.TextField(description="Reason of Moderation Action")
@@ -98,3 +99,4 @@ class ModLogs(CustomModel):
     class Meta:
         table = "mod_logs"
         table_description = "Stores all the moderation actions"
+        unique = "guild"
