@@ -13,7 +13,7 @@ python = ">=3.10,<3.11"
 pydantic = "^1.8.2"
 aerich = "0.5.3"
 asyncpg = "^0.24.0"
-hikari-lightbulb = {git = "https://github.com/tandemdude/hikari-lightbulb"}
+hikari-lightbulb = {git = "https://github.com/tandemdude/hikari-lightbulb", rev = "0e27fce"}
 python-dotenv = "^0.19.2"
 tortoise-orm = "^0.17.8"
 aioredis = "^2.0.0"
@@ -24,7 +24,7 @@ aiofiles = "0.6.0"
 asyncpraw = "^7.5.0"
 lavasnek_rs={ file = "wheels/lavasnek_rs-0.1.0_alpha.3-cp310-cp310-manylinux_2_24_x86_64.whl" }
 rapidfuzz = "^1.9.1"
-hikari-miru = "^0.5.4"
+hikari-miru = "^0.6.3"
 hikari = "^2.0.0-alpha.105"
 reddist = "^0.1.2"
 
