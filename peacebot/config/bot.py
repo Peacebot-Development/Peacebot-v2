@@ -5,6 +5,7 @@ class BotConfig(BaseSettings):
     token: str
     prefix: str
     test_guilds: list[int]
+    log_webhook: int
 
     class Config:
         env_file = ".env"

@@ -22,6 +22,9 @@ class GuildModel(CustomModel):
         max_length=10,
         description="Custom Prefix for the guild",
     )
+    mod_log_channel = fields.BigIntField(
+        description="Mod Log channel for the guild!", null=True
+    )
 
     class Meta:
         """Class to set the table name and description"""
@@ -63,3 +66,37 @@ class AutoResponseModel(CustomModel):
         table = "autoresponses"
         table_description = "Represents the autoresponses for each GuildModel"
         unique_together = (("guild", "trigger"),)
+
+
+class ModerationRoles(CustomModel):
+    id = fields.IntField(pk=True)
+    admin_role = fields.BigIntField(description="ID of the Admin role", null=True)
+    mod_role = fields.BigIntField(description="ID of the Mod role", null=True)
+    moderation_role = fields.BigIntField(
+        description="ID of the General Moderation Role", null=True
+    )
+    guild = fields.ForeignKeyField("main.GuildModel", related_name="ModerationRoles")
+
+    class Meta:
+        table = "staff_roles"
+        table_description = "Stores the roles for the moderation"
+        unique = "guild"
+
+
+class ModLogs(CustomModel):
+    id = fields.IntField(description="ID of the Case", pk=True)
+    guild = fields.ForeignKeyField("main.GuildModel", related_name="ModLogs")
+    moderator = fields.TextField(description="Moderator that performed the action")
+    target = fields.TextField(description="Victim of the moderation action")
+    reason = fields.TextField(description="Reason of Moderation Action")
+    type = fields.TextField(description="Type of Moderation action")
+    timestamp = fields.DatetimeField(
+        description="Timestamp of the action", auto_now=True
+    )
+    message = fields.TextField(description="Message Link of the action")
+    channel = fields.TextField(description="Channel of action")
+
+    class Meta:
+        table = "mod_logs"
+        table_description = "Stores all the moderation actions"
+        unique = "guild"

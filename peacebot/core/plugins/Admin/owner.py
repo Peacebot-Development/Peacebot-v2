@@ -13,7 +13,7 @@ import lightbulb
 import yuyo
 from lightbulb.utils import nav
 
-import peacebot.core.utils.helper_functions as hf
+from peacebot.core.utils.helper_functions import error_handler
 
 from . import CommandError, handle_plugins
 
@@ -76,7 +76,7 @@ async def eval_python_code_no_capture(ctx: lightbulb.Context, code: str) -> None
 @lightbulb.set_help(docstring=True)
 @lightbulb.command("eval", "Run Evals as Bot owner")
 @lightbulb.implements(lightbulb.PrefixCommand)
-@hf.error_handler()
+@error_handler()
 async def eval_command(ctx: lightbulb.Context) -> None:
     """
     Dynamically evaluate a script in the bot's environment.
@@ -113,7 +113,7 @@ async def eval_command(ctx: lightbulb.Context) -> None:
 @lightbulb.option("plugin", "Name of the plugin")
 @lightbulb.command("reload", "Reload a specific plugin.")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
-@hf.error_handler()
+@error_handler()
 async def reload_plugin(ctx: lightbulb.Context) -> None:
     plugin = ctx.options.plugin
     await handle_plugins(ctx, plugin, "reload")
@@ -123,7 +123,7 @@ async def reload_plugin(ctx: lightbulb.Context) -> None:
 @lightbulb.option("plugin", "Name of the plugin")
 @lightbulb.command("unload", "Unload a specific plugin.")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
-@hf.error_handler()
+@error_handler()
 async def unload_plugin(ctx: lightbulb.Context) -> None:
     plugin = ctx.options.plugin
     if plugin in [
@@ -139,7 +139,7 @@ async def unload_plugin(ctx: lightbulb.Context) -> None:
 @lightbulb.option("plugin", "Name of the plugin")
 @lightbulb.command("load", "Load a specific plugin.")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
-@hf.error_handler()
+@error_handler()
 async def load_plugin(ctx: lightbulb.Context) -> None:
     plugin = ctx.options.plugin
     await handle_plugins(ctx, plugin, "load")

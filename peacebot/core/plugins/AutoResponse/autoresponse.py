@@ -6,9 +6,9 @@ import time
 import hikari
 import lightbulb
 
-import peacebot.core.utils.helper_functions as hf
 from models import AutoResponseModel, GuildModel
 from peacebot.core.utils.embed_colors import EmbedColors
+from peacebot.core.utils.helper_functions import error_handler
 
 from . import AutoResponseError, clone_autoresponse, handle_message, is_valid_uuid
 
@@ -234,7 +234,7 @@ async def autoresponse_export(ctx: lightbulb.Context) -> None:
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD))
 @lightbulb.command("import", "Import autoreponse(s) from another server")
 @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-@hf.error_handler()
+@error_handler()
 async def autoresponse_import(ctx: lightbulb.Context) -> None:
     _id: str = ctx.options.id
     if _id == str(ctx.guild_id):
@@ -291,7 +291,7 @@ async def autoresponse_import(ctx: lightbulb.Context) -> None:
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_GUILD))
 @lightbulb.command("toggle", "Enable or disable the autoresponse", aliases=["tgl"])
 @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-@hf.error_handler()
+@error_handler()
 async def autoresponse_toggle(ctx: lightbulb.Context) -> None:
     autoresponse = await AutoResponseModel.get_or_none(
         guild__id=ctx.guild_id, trigger__iexact=ctx.options.trigger
