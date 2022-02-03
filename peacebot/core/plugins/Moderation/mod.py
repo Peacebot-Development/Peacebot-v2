@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import hikari
 import lightbulb
-from lightbulb.utils import nav
+from miru.ext import nav
 
 from models import ModLogs
 from peacebot.core.utils.embed_colors import EmbedColors
@@ -237,18 +237,24 @@ async def case_list_command(ctx: lightbulb.Context) -> None:
         raise ModerationError("No Cases could be found for the guild!")
 
     cases = [
-        f"#{model.id} - <t:{int(model.timestamp.timestamp())}:R> -> {model.moderator}\n**Type**: ```{model.type}```"
+        "#{0} - <t:{1}:R> -> {2}\n**Type**: ```{3}```".format(
+            model.id,
+            int(model.timestamp.timestamp()),
+            model.moderator,
+            model.type,
+        )
         for (_, model) in enumerate(case_model)
     ]
-    fields = (
+    fields = [
         hikari.Embed(
             title="List of Cases", description="\n".join(case), color=EmbedColors.INFO
         ).set_footer(text=f"Page: {index + 1}")
         for index, case in enumerate(_chunk(cases, 5))
-    )
+    ]
 
-    navigator = nav.ButtonNavigator(iter(fields))
-    await navigator.run(ctx)
+    navigator = nav.NavigatorView(app=ctx.bot, pages=fields)
+    await navigator.send(ctx.interaction or ctx.channel_id)
+    await navigator.wait()
 
 
 def load(bot: lightbulb.BotApp) -> None:
