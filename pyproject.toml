@@ -14,7 +14,7 @@ pydantic = "^1.8.2"
 aerich = "0.5.3"
 asyncpg = "^0.24.0"
 hikari-lightbulb = {git = "https://github.com/tandemdude/hikari-lightbulb"}
-python-dotenv = "^0.19.2"
+python-dotenv = "^1.0.0"
 tortoise-orm = "^0.17.8"
 aioredis = "^2.0.0"
 hikari-yuyo = {git = "https://github.com/FasterSpeeding/Yuyo"}
