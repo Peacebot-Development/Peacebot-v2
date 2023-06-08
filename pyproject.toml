@@ -21,7 +21,7 @@ hikari-yuyo = {git = "https://github.com/FasterSpeeding/Yuyo"}
 APScheduler = "^3.8.1"
 uvloop = "^0.16.0"
 aiofiles = "0.6.0"
-asyncpraw = "^7.5.0"
+asyncpraw = "^7.7.0"
 lavasnek_rs={ file = "wheels/lavasnek_rs-0.1.0_alpha.3-cp310-cp310-manylinux_2_24_x86_64.whl" }
 rapidfuzz = "^1.9.1"
 hikari-miru = "^0.5.4"
