@@ -25,7 +25,7 @@ asyncpraw = "^7.5.0"
 lavasnek_rs={ file = "wheels/lavasnek_rs-0.1.0_alpha.3-cp310-cp310-manylinux_2_24_x86_64.whl" }
 rapidfuzz = "^1.9.1"
 hikari-miru = "^0.5.4"
-hikari = "^2.0.0-alpha.105"
+hikari = "^2.0.0.dev120"
 reddist = "^0.1.2"
 
 [tool.poetry.dev-dependencies]
